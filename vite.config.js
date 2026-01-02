@@ -4,10 +4,10 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: "build", // optional, default is dist
+    outDir: "dist", // Must be "dist" for Vercel to detect
   },
-  base: "/", // ensure base path is root
+  base: "/",
   server: {
-    historyApiFallback: true, // important for SPA routing in dev
+    historyApiFallback: true, // SPA routing for dev
   },
 });
