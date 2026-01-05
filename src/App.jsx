@@ -3,6 +3,7 @@ import Login from "./LoginPage/login";
 import Signup from "./LoginPage/SignupPage/Signup";
 import ForgetPass from "./LoginPage/ForgetPass/ForgetPass";
 import AdminDashboard from "./AdminDashboard/AdminDashboard";
+import Property from "./AdminDashboard/Property/Property";
 function App() {
   return (
     <BrowserRouter>
@@ -13,6 +14,7 @@ function App() {
         <Route path="/forgetpass" element={<ForgetPass />}></Route>
         {/*admin Dashboard */}
         <Route path="/admin-dashboard" element={<AdminDashboard />}></Route>
+        <Route path="/property" element={<Property/>}></Route>
       </Routes>
     </BrowserRouter>
   );

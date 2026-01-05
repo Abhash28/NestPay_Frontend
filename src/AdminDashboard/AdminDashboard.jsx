@@ -1,11 +1,15 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const AdminDashboard = () => {
   return (
-    <div>
-      <h1>Admin Dashboard main file </h1>
-      
-    </div>
+    <>
+      <nav>
+        <h1>Admin Dashboard</h1>
+        <Link to="/property">Property</Link>
+        
+      </nav>
+    </>
   );
 };
 
