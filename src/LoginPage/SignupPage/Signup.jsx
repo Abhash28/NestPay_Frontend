@@ -17,7 +17,7 @@ function Signup() {
     seterror("");
     try {
       const response = await axios.post(
-        "https://nestpay.onrender.com/api/auth/signup",
+        "https://nestpay-backend.onrender.com/api/auth/signup",
         formData
       );
       alert(response.data.message);

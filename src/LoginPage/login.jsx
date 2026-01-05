@@ -12,7 +12,7 @@ function Login() {
   const handleLoginBtn = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("https://nestpay.onrender.com/api/auth/login",
+      const response = await axios.post("https://nestpay-backend.onrender.com/api/auth/login",
         formData,
         { withCredentials: true }
       );
