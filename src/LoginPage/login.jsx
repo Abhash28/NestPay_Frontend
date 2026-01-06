@@ -12,13 +12,16 @@ function Login() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "https://nestpay-backend.onrender.com/api/auth/login",
+        "http://localhost:5000/api/auth/login",
         formData,
-        { withCredentials: true }
       );
+      console.log(response.data.token);
+      localStorage.setItem("token",response.data.token)
       setformData({ mobileNo: "", password: "" });
-      setError("Signup Successfully");
-      navigate("/admin-dashboard");
+      setError("Login Successfully");
+      if (response.data.success) {
+        navigate("/admin-dashboard")
+      }
     } catch (error) {
       if (error.response) {
         setError(error.response.data.message || "Login Failed");

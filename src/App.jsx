@@ -3,7 +3,9 @@ import Login from "./LoginPage/login";
 import Signup from "./LoginPage/SignupPage/Signup";
 import ForgetPass from "./LoginPage/ForgetPass/ForgetPass";
 import AdminDashboard from "./AdminDashboard/AdminDashboard";
-import Property from "./AdminDashboard/Property/Property";
+import ProtectedRoute from "./routes/ProtectedRoute";
+
+
 function App() {
   return (
     <BrowserRouter>
@@ -13,8 +15,8 @@ function App() {
         <Route path="/signup" element={<Signup />}></Route>
         <Route path="/forgetpass" element={<ForgetPass />}></Route>
         {/*admin Dashboard */}
-        <Route path="/admin-dashboard" element={<AdminDashboard />}></Route>
-        <Route path="/property" element={<Property/>}></Route>
+        <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}></Route>
+        
       </Routes>
     </BrowserRouter>
   );
