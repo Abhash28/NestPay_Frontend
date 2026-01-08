@@ -8,6 +8,8 @@ import Dashboard from "../src/Pages/Admin/Dashboard/Dashboard"
 import Property from "./Pages/Admin/Property/Property";
 import AddProperty from "./Pages/Admin/Property/AddProperty/AddProperty";
 import UnitDetail from "./Pages/Admin/Property/PorpertyDetail/UnitDetail";
+import Tenant from "./Pages/Admin/Tenant/Tenant";
+import AddTenant from "./Pages/Admin/Tenant/AddTenant/AddTenant";
 
 function App() {
   return (
@@ -21,8 +23,10 @@ function App() {
         <Route path="/" element={<ProtectedRoute><AdminLayout/></ProtectedRoute>}>
         <Route path="/admin-dashboard" element={<Dashboard/>}/>
         <Route path="/admin-property" element={<Property/>}/>
-        <Route path="/admin/property/add" element={<AddProperty/>}/>
+        <Route path="/admin/property/add-property" element={<AddProperty/>}/>
         <Route path="/admin/property/:propertyId/unit-detail" element={<UnitDetail/>}></Route>
+        <Route path="/admin-tenant" element={<Tenant/>}></Route>
+        <Route path="/admin/tenant/add-tenant" element={<AddTenant/>}></Route>
         </Route>
       </Routes>
     </BrowserRouter>

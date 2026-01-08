@@ -13,17 +13,17 @@ function Login() {
     try {
       const response = await axios.post(
         "https://nestpay-backend.onrender.com/api/auth/login",
-        formData,
+        formData
       );
       // Save token to localStorage
-      localStorage.setItem("token",response.data.token)
+      localStorage.setItem("token", response.data.token);
       setformData({ mobileNo: "", password: "" });
       setError("Login Successfully");
       if (response.data.success) {
-        navigate("/")
+        navigate("/admin-dashboard");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       if (error.response) {
         setError(error.response.data.message || "Login Failed");
       } else {
@@ -95,10 +95,7 @@ function Login() {
           </p>
 
           <p>
-            <Link
-              to="/forgetpass"
-              className="text-indigo-600 hover:underline"
-            >
+            <Link to="/forgetpass" className="text-indigo-600 hover:underline">
               Forgot Password
             </Link>
           </p>

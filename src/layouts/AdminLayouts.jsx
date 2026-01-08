@@ -14,7 +14,7 @@ const AdminLayout = () => {
           <Link  to="/admin-property" className="hover:text-yellow-400">
             Property
           </Link>
-          <Link className="hover:text-yellow-400">
+          <Link to="/admin-tenant" className="hover:text-yellow-400">
             Tenant
           </Link>
           <Link  className="hover:text-yellow-400">

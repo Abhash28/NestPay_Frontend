@@ -43,9 +43,7 @@ function Signup() {
           <h1 className="text-3xl font-bold text-indigo-600 tracking-wide">
             NestPay
           </h1>
-          <p className="text-sm text-gray-500">
-            Create Admin Account
-          </p>
+          <p className="text-sm text-gray-500">Create Admin Account</p>
         </div>
 
         {/* ERROR MESSAGE */}
@@ -68,9 +66,7 @@ function Signup() {
             type="text"
             placeholder="Enter admin name"
             value={formData.name}
-            onChange={(e) =>
-              setformData({ ...formData, name: e.target.value })
-            }
+            onChange={(e) => setformData({ ...formData, name: e.target.value })}
             className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>

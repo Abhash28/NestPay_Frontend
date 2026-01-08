@@ -1,10 +1,10 @@
 import { useState } from "react";
-import axios from "axios"
-import { useNavigate } from "react-router-dom"; 
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AddProperty = () => {
   //navigate
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   // Field names must match DB schema
   const [formData, setFormData] = useState({
     propertyName: "",
@@ -12,45 +12,44 @@ const AddProperty = () => {
     monthlyRent: "",
     totalUnits: "",
   });
-  const[error,setError]=useState('')
-  const[success,setSuccess]=useState("")
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleAddProperty = async(e) => {
+  const handleAddProperty = async (e) => {
     e.preventDefault();
-    setError("")
+    setError("");
     try {
       //fetching token form local storage
-      const token=localStorage.getItem("token")
-      await axios.post('https://nestpay-backend.onrender.com/api/property/add-property',formData,
+      const token = localStorage.getItem("token");
+      await axios.post(
+        "https://nestpay-backend.onrender.com/api/property/add-property",
+        formData,
         {
-          headers:{
-            Authorization:`Bearer ${token}`
-          }
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      )
+      );
       setFormData({
-        propertyName:"",
-        propertyAddress:'',
-        monthlyRent:"",
-        totalUnits:""
-      })
-      //show success message 
-      setSuccess("Property added successfully!")
+        propertyName: "",
+        propertyAddress: "",
+        monthlyRent: "",
+        totalUnits: "",
+      });
+      //show success message
+      setSuccess("Property added successfully!");
       //after 3 sec success message gone
       setTimeout(() => {
-         setSuccess("")
-         //navigate to main property page
-         navigate("/admin-property")
+        setSuccess("");
+        //navigate to main property page
+        navigate("/admin-property");
       }, 2000);
-      
-      
     } catch (error) {
-     if (error.response) {
-      setError(error.response.data.message)
-     }
-     else{
-      setError("Server not Responding")
-     }
+      if (error.response) {
+        setError(error.response.data.message);
+      } else {
+        setError("Server not Responding");
+      }
     }
   };
 
@@ -58,7 +57,7 @@ const AddProperty = () => {
     <>
       <h2>Add Property</h2>
       {/*Success Message */}
-      {success&&<p>{success}</p>}
+      {success && <p>{success}</p>}
       {/*Error log while Adding property */}
       {error && <p>{error}</p>}
       <form onSubmit={handleAddProperty}>
