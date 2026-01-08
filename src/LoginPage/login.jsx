@@ -23,6 +23,7 @@ function Login() {
         navigate("/")
       }
     } catch (error) {
+      console.log(error)
       if (error.response) {
         setError(error.response.data.message || "Login Failed");
       } else {
