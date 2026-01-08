@@ -40,7 +40,7 @@ function ForgetPass() {
       );
       alert(response.data.message);
       setFormData({ mobileNo: "", password: "" });
-      navigate("/");
+      navigate("/login");
     } catch (error) {
       if (error.response) {
         seterror(error.response.data.message);

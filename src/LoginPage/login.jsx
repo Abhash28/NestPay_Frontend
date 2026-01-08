@@ -20,7 +20,7 @@ function Login() {
       setformData({ mobileNo: "", password: "" });
       setError("Login Successfully");
       if (response.data.success) {
-        navigate("/admin-dashboard")
+        navigate("/")
       }
     } catch (error) {
       if (error.response) {

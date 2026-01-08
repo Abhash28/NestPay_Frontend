@@ -22,7 +22,7 @@ function Signup() {
       );
       alert(response.data.message);
       setformData({ name: "", mobileNo: "", password: "" });
-      navigate("/");
+      navigate("/login");
     } catch (error) {
       if (error.response) {
         seterror(error.response.data.message || "signUp failed");
