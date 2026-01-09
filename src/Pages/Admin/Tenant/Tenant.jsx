@@ -53,6 +53,7 @@ const Tenant = () => {
             <th>Tenant Name</th>
             <th>Mobile No</th>
             <th>Address</th>
+            <th>Action</th>
           </tr>
         </thead>
 
@@ -70,6 +71,7 @@ const Tenant = () => {
                 <td>{tenant.tenantName}</td>
                 <td>{tenant.tenantMobileNo}</td>
                 <td>{tenant.tenantAddress}</td>
+                <td>{tenant.status}</td>
               </tr>
             ))
           )}

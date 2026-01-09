@@ -22,7 +22,7 @@ const UnitDetail = () => {
         );
 
         setUnits(res.data.units || []);
-        console.log(res.data.units);
+        console.log(res.data.units[0].propertyId);
       } catch (error) {
         if (error.response?.status === 401) {
           navigate("/login");
@@ -33,7 +33,7 @@ const UnitDetail = () => {
     fetchUnits();
   }, [propertyId, navigate]);
 
-  //check the seat allot or not
+  //check the seat alloted or not
   const vacantCount = units.filter((unit) => unit.status === "vacant").length;
   const occupiedCount = units.filter(
     (unit) => unit.status === "occupied"
@@ -43,6 +43,15 @@ const UnitDetail = () => {
       <h2>Units</h2>
       <h2>Occupied:{occupiedCount}</h2>
       <h2>Vacant:{vacantCount}</h2>
+      <button
+        onClick={() =>
+          navigate(
+            `/admin/property/unit-detail/${units[0].propertyId}/allocation`
+          )
+        }
+      >
+        Unit Allocation
+      </button>
 
       <table border="1" cellPadding="10" cellSpacing="0">
         <thead>
@@ -69,13 +78,6 @@ const UnitDetail = () => {
                 <td>{unit.unitNumber}</td>
                 <td>{unit.status || "Vacant"}</td>
                 <td>{unit.monthlyRent}</td>
-                <td>
-                  {unit.status === "vacant" ? (
-                    <button>Allot</button>
-                  ) : (
-                    <button disabled>Occupied</button>
-                  )}
-                </td>
               </tr>
             ))
           )}

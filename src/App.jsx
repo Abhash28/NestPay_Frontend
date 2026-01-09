@@ -4,12 +4,13 @@ import Login from "./LoginPage/login";
 import Signup from "./LoginPage/SignupPage/Signup";
 import ForgetPass from "./LoginPage/ForgetPass/ForgetPass";
 import AdminLayout from "./layouts/AdminLayouts";
-import Dashboard from "../src/Pages/Admin/Dashboard/Dashboard"
+import Dashboard from "../src/Pages/Admin/Dashboard/Dashboard";
 import Property from "./Pages/Admin/Property/Property";
 import AddProperty from "./Pages/Admin/Property/AddProperty/AddProperty";
 import UnitDetail from "./Pages/Admin/Property/PorpertyDetail/UnitDetail";
 import Tenant from "./Pages/Admin/Tenant/Tenant";
 import AddTenant from "./Pages/Admin/Tenant/AddTenant/AddTenant";
+import UnitAllocation from "./Pages/Admin/Property/PorpertyDetail/UnitAllocation/UnitAllocation";
 
 function App() {
   return (
@@ -20,13 +21,33 @@ function App() {
         <Route path="/signup" element={<Signup />}></Route>
         <Route path="/forgetpass" element={<ForgetPass />}></Route>
         {/*Protected Admin Routes*/}
-        <Route path="/" element={<ProtectedRoute><AdminLayout/></ProtectedRoute>}>
-        <Route path="/admin-dashboard" element={<Dashboard/>}/>
-        <Route path="/admin-property" element={<Property/>}/>
-        <Route path="/admin/property/add-property" element={<AddProperty/>}/>
-        <Route path="/admin/property/:propertyId/unit-detail" element={<UnitDetail/>}></Route>
-        <Route path="/admin-tenant" element={<Tenant/>}></Route>
-        <Route path="/admin/tenant/add-tenant" element={<AddTenant/>}></Route>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/admin-dashboard" element={<Dashboard />} />
+          <Route path="/admin-property" element={<Property />} />
+          <Route
+            path="/admin/property/add-property"
+            element={<AddProperty />}
+          />
+          <Route
+            path="/admin/property/:propertyId/unit-detail"
+            element={<UnitDetail />}
+          ></Route>
+          <Route
+            path="/admin/property/unit-detail/:propertyId/allocation"
+            element={<UnitAllocation />}
+          ></Route>
+          <Route path="/admin-tenant" element={<Tenant />}></Route>
+          <Route
+            path="/admin/tenant/add-tenant"
+            element={<AddTenant />}
+          ></Route>
         </Route>
       </Routes>
     </BrowserRouter>
