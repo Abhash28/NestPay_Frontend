@@ -13,7 +13,7 @@ const UnitDetail = () => {
         const token = localStorage.getItem("token");
 
         const res = await axios.get(
-          `https://nestpay-backend.onrender.com/api/property/all-units/${propertyId}`,
+          `http://localhost:5000/api/property/all-units/${propertyId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

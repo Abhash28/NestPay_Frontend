@@ -18,14 +18,13 @@ const UnitAllocation = () => {
     tenantMobile: "",
     tenantAddress: "",
   });
-
   //  Fetch single property
   useEffect(() => {
     const fetchProperty = async () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        `https://nestpay-backend.onrender.com/api/property/single-property/${propertyId}`,
+        `http://localhost:5000/api/property/single-property/${propertyId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -43,7 +42,7 @@ const UnitAllocation = () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        `https://nestpay-backend.onrender.com/api/property/all-units/${propertyId}`,
+        `http://localhost:5000/api/property/all-units/${propertyId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -63,7 +62,7 @@ const UnitAllocation = () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "https://nestpay-backend.onrender.com/api/tenant/all-tenant",
+        "http://localhost:5000/api/tenant/all-tenant",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -81,12 +80,11 @@ const UnitAllocation = () => {
 
   //unit allocation
   const handleUnitAllocation = async (e) => {
-    console.log("Unit Allocation");
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.post(
-        "https://nestpay-backend.onrender.com/api/allocation/allocate",
+      await axios.post(
+        "http://localhost:5000/api/allocation/allocate",
         {
           propertyId,
           unitId: formData.unitId,
@@ -96,7 +94,6 @@ const UnitAllocation = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log(res.data);
       setFormData({
         unitId: "",
         tenantId: "",

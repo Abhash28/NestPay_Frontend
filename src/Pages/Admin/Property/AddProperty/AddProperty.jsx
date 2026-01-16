@@ -22,7 +22,7 @@ const AddProperty = () => {
       //fetching token form local storage
       const token = localStorage.getItem("token");
       await axios.post(
-        "https://nestpay-backend.onrender.com/api/property/add-property",
+        "http://localhost:5000/api/property/add-property",
         formData,
         {
           headers: {

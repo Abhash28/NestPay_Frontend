@@ -25,7 +25,7 @@ const AddTenant = () => {
       const token = localStorage.getItem("token");
 
       await axios.post(
-        "https://nestpay-backend.onrender.com/api/tenant/add-tenant",
+        "http://localhost:5000/api/tenant/add-tenant",
         formData,
         {
           headers: {

@@ -13,7 +13,7 @@ const Tenant = () => {
         const token = localStorage.getItem("token");
 
         const res = await axios.get(
-          "https://nestpay-backend.onrender.com/api/tenant/all-tenant",
+          "http://localhost:5000/api/tenant/all-tenant",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -34,6 +34,9 @@ const Tenant = () => {
     fetchTenants();
   }, []);
 
+  //only active tenants show
+  const activeTenants = tenants.filter((tenant) => tenant.status === "Active");
+
   return (
     <>
       <h2>Tenants</h2>
@@ -43,7 +46,11 @@ const Tenant = () => {
       <button onClick={() => navigate("/admin/tenant/add-tenant")}>
         Add Tenant
       </button>
-
+      {/*Show deactive tenants */}
+      <button onClick={() => navigate("/admin-tenant/deactive")}>
+        Deactive Tenants
+      </button>
+      {/*Error */}
       {error && <p>{error}</p>}
 
       <table border="1" cellPadding="10" cellSpacing="0">
@@ -58,20 +65,25 @@ const Tenant = () => {
         </thead>
 
         <tbody>
-          {tenants.length === 0 ? (
+          {activeTenants.length === 0 ? (
             <tr>
               <td colSpan="4" style={{ textAlign: "center" }}>
                 No tenants found
               </td>
             </tr>
           ) : (
-            tenants.map((tenant, index) => (
+            activeTenants.map((tenant, index) => (
               <tr key={tenant._id}>
                 <td>{index + 1}</td>
                 <td>{tenant.tenantName}</td>
                 <td>{tenant.tenantMobileNo}</td>
                 <td>{tenant.tenantAddress}</td>
                 <td>{tenant.status}</td>
+                <button
+                  onClick={() => navigate(`/admin-tenant/detail/${tenant._id}`)}
+                >
+                  Info
+                </button>
               </tr>
             ))
           )}

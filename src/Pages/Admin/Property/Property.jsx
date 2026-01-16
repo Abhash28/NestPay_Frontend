@@ -1,3 +1,4 @@
+import "../../../components/Modal/modal.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -5,6 +6,10 @@ import { useNavigate } from "react-router-dom";
 const Property = () => {
   const navigate = useNavigate();
   const [property, setProperty] = useState([]);
+  //modal for edit property
+  const [showModal, setShowModal] = useState(false);
+  //set property in this for edit
+  const [selectProperty, setSelectProperty] = useState(null);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -12,7 +17,7 @@ const Property = () => {
         const token = localStorage.getItem("token");
 
         const res = await axios.get(
-          "https://nestpay-backend.onrender.com/api/property/all-property",
+          "http://localhost:5000/api/property/all-property",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -20,7 +25,6 @@ const Property = () => {
           }
         );
 
-        console.log("API data:", res.data.allProperty);
         setProperty(res.data.allProperty || []);
       } catch (error) {
         if (error.response?.status === 401) {
@@ -31,6 +35,29 @@ const Property = () => {
 
     fetchProperties();
   }, []);
+  //edit property modal
+  const hanldeEdit = (e, property) => {
+    e.stopPropagation();
+    setSelectProperty(property);
+    setShowModal(true);
+    console.log(property);
+  };
+  //update property
+  const handleUpdateProperty = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        "http://localhost:5000/api/property/update-property",
+        {
+          property: selectProperty,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setShowModal(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -77,12 +104,59 @@ const Property = () => {
                 <td>{item.propertyAddress}</td>
                 <td>{item.monthlyRent}</td>
                 <td>{item.totalUnits}</td>
-                <button>Action</button>
+                <button onClick={(e) => hanldeEdit(e, item)}>edit</button>
               </tr>
             ))
           )}
         </tbody>
       </table>
+
+      {/*when click on edit property then open modal */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3>Edit Property</h3>
+
+            <input
+              type="text"
+              defaultValue={selectProperty.propertyName}
+              onChange={(e) => {
+                setSelectProperty({
+                  ...selectProperty,
+                  propertyName: e.target.value,
+                });
+              }}
+            />
+
+            <input
+              type="text"
+              defaultValue={selectProperty.propertyAddress}
+              onChange={(e) => {
+                setSelectProperty({
+                  ...selectProperty,
+                  propertyAddress: e.target.value,
+                });
+              }}
+            />
+
+            <input
+              type="number"
+              defaultValue={selectProperty.monthlyRent}
+              onChange={(e) => {
+                setSelectProperty({
+                  ...selectProperty,
+                  monthlyRent: e.target.value,
+                });
+              }}
+            />
+
+            <div style={{ marginTop: "10px" }}>
+              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <button onClick={handleUpdateProperty}>Update</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
