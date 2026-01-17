@@ -10,7 +10,6 @@ const AddProperty = () => {
     propertyName: "",
     propertyAddress: "",
     monthlyRent: "",
-    totalUnits: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -34,7 +33,6 @@ const AddProperty = () => {
         propertyName: "",
         propertyAddress: "",
         monthlyRent: "",
-        totalUnits: "",
       });
       //show success message
       setSuccess("Property added successfully!");
@@ -90,16 +88,6 @@ const AddProperty = () => {
           placeholder="Enter Rent Amount..."
           onChange={(e) =>
             setFormData({ ...formData, monthlyRent: e.target.value })
-          }
-        />
-
-        <label>Total Units</label>
-        <input
-          type="number"
-          value={formData.totalUnits}
-          placeholder="How Many Room/Flat/Shop"
-          onChange={(e) =>
-            setFormData({ ...formData, totalUnits: e.target.value })
           }
         />
 

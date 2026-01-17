@@ -147,7 +147,7 @@ const UnitAllocation = () => {
           <option value="">--- Select Unit ---</option>
           {vacantUnits.map((unit) => (
             <option key={unit._id} value={unit._id}>
-              Unit {unit.unitNumber}
+              {unit.unitName}
             </option>
           ))}
         </select>

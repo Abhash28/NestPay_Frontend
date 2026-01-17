@@ -34,14 +34,15 @@ const Property = () => {
     };
 
     fetchProperties();
-  }, []);
+  }, [property]);
+
   //edit property modal
   const hanldeEdit = (e, property) => {
     e.stopPropagation();
     setSelectProperty(property);
     setShowModal(true);
-    console.log(property);
   };
+
   //update property
   const handleUpdateProperty = async () => {
     try {

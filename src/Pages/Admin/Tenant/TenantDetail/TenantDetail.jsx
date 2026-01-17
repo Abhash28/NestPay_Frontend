@@ -120,7 +120,7 @@ const TenantDetail = () => {
 
       <h3>Unit Details</h3>
       <p>
-        <b>Unit Number:</b> {tenant.unitId?.unitNumber}
+        <b>Unit Number:</b> {tenant.unitId?.unitName}
       </p>
       <p>
         <b>Monthly Rent:</b> ₹{tenant.unitId?.monthlyRent || "-"}
