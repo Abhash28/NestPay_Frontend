@@ -1,4 +1,13 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import {
+  Home,
+  History,
+  Bell,
+  User,
+  LogOut,
+  Zap,
+  ChevronRight,
+} from "lucide-react";
 
 const TenantLayout = () => {
   const navigate = useNavigate();
@@ -9,72 +18,122 @@ const TenantLayout = () => {
     navigate("/login");
   };
 
-  const linkClass = ({ isActive }) =>
-    `flex items-center gap-3 px-4 py-2 rounded-lg transition
-     ${
-       isActive
-         ? "bg-indigo-600 text-white shadow"
-         : "text-gray-600 hover:bg-gray-100"
-     }`;
+  // Mobile Bottom Tab Style
+  const navLinkClass = ({ isActive }) =>
+    `flex flex-col items-center gap-1 transition-all duration-300 relative
+     ${isActive ? "text-indigo-600 scale-110" : "text-slate-400"}`;
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r flex flex-col">
-        {/* Brand */}
-        <div className="px-6 py-4 border-b">
-          <h1 className="text-2xl font-bold text-indigo-600">NestPay</h1>
-          <p className="text-sm text-gray-500">Tenant Panel</p>
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans selection:bg-indigo-100">
+      {/* ===== MOBILE HEADER ===== */}
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-200">
+            <Zap className="text-white w-5 h-5" />
+          </div>
+          <span className="text-xl font-black text-slate-900 tracking-tight">
+            NestPay
+          </span>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-2">
-          <NavLink to="/tenant-home" className={linkClass}>
-            Home
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/tenant-notification")}
+            className="p-2 relative text-slate-500"
+          >
+            <Bell size={22} />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
+          </button>
+          <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
+            <User size={20} className="text-slate-600" />
+          </div>
+        </div>
+      </header>
+
+      {/* ===== MAIN CONTENT AREA ===== */}
+      {/* pb-24 ensures content isn't hidden behind the floating bottom dock */}
+      <main className="flex-1 px-5 py-6 pb-28">
+        <div className="max-w-md mx-auto">
+          <Outlet />
+        </div>
+      </main>
+
+      {/* ===== MOBILE BOTTOM DOCK (The iOS Style Bar) ===== */}
+      <div className="fixed bottom-6 left-5 right-5 z-50">
+        <nav className="bg-slate-900/95 backdrop-blur-xl rounded-[28px] p-3 flex items-center justify-around shadow-2xl shadow-indigo-950/20 border border-white/10">
+          <NavLink to="/tenant-home" className={navLinkClass}>
+            {({ isActive }) => (
+              <>
+                <Home size={22} strokeWidth={isActive ? 2.5 : 2} />
+                <span className="text-[10px] font-bold uppercase tracking-widest">
+                  Home
+                </span>
+                {isActive && (
+                  <span className="absolute -bottom-1 w-1 h-1 bg-indigo-400 rounded-full"></span>
+                )}
+              </>
+            )}
           </NavLink>
 
-          <NavLink to="/tenant-history" className={linkClass}>
-            History
+          <NavLink to="/tenant-history" className={navLinkClass}>
+            {({ isActive }) => (
+              <>
+                <History size={22} strokeWidth={isActive ? 2.5 : 2} />
+                <span className="text-[10px] font-bold uppercase tracking-widest">
+                  History
+                </span>
+                {isActive && (
+                  <span className="absolute -bottom-1 w-1 h-1 bg-indigo-400 rounded-full"></span>
+                )}
+              </>
+            )}
           </NavLink>
-          <NavLink to="/tenant-notification" className={linkClass}>
-            Notification
-          </NavLink>
-          <NavLink to="/tenant-account" className={linkClass}>
-            Account
-          </NavLink>
-        </nav>
 
-        {/* Logout */}
-        <div className="px-4 py-4 border-t">
+          <NavLink to="/tenant-notification" className={navLinkClass}>
+            {({ isActive }) => (
+              <>
+                <Bell size={22} strokeWidth={isActive ? 2.5 : 2} />
+                <span className="text-[10px] font-bold uppercase tracking-widest">
+                  Alerts
+                </span>
+                {isActive && (
+                  <span className="absolute -bottom-1 w-1 h-1 bg-indigo-400 rounded-full"></span>
+                )}
+              </>
+            )}
+          </NavLink>
+
+          <NavLink to="/tenant-account" className={navLinkClass}>
+            {({ isActive }) => (
+              <>
+                <User size={22} strokeWidth={isActive ? 2.5 : 2} />
+                <span className="text-[10px] font-bold uppercase tracking-widest">
+                  Profile
+                </span>
+                {isActive && (
+                  <span className="absolute -bottom-1 w-1 h-1 bg-indigo-400 rounded-full"></span>
+                )}
+              </>
+            )}
+          </NavLink>
+
+          {/* Vertical Divider */}
+          <div className="w-px h-6 bg-white/10 mx-1"></div>
+
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+            className="flex flex-col items-center gap-1 text-rose-400 hover:text-rose-300 transition-colors"
           >
-            🚪 Logout
+            <LogOut size={22} />
+            <span className="text-[10px] font-bold uppercase tracking-widest">
+              Exit
+            </span>
           </button>
-        </div>
-      </aside>
-
-      {/* Main Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Bar */}
-        <header className="bg-white border-b px-6 py-4 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Tenant Dashboard
-          </h2>
-
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold">
-              T
-            </div>
-          </div>
-        </header>
-
-        {/* Page Content */}
-        <main className="flex-1 p-6">
-          <Outlet />
-        </main>
+        </nav>
       </div>
+
+      {/* Aesthetic helper for "Notch" or bottom safe area */}
+      <div className="fixed bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
     </div>
   );
 };
