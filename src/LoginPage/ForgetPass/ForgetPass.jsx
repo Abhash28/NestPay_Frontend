@@ -12,7 +12,7 @@ function ForgetPass() {
   const handleFindUser = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/check-user",
+        "https://nestpay-backend.onrender.com/api/auth/check-user",
         { mobileNo: formData.mobileNo },
       );
       if (response.data.success) {
@@ -35,7 +35,7 @@ function ForgetPass() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/change-pass",
+        "https://nestpay-backend.onrender.com/api/auth/change-pass",
         { mobileNo: formData.mobileNo, password: formData.password },
       );
       alert(response.data.message);

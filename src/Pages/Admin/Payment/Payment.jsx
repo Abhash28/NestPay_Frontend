@@ -12,7 +12,7 @@ const Payment = () => {
         const token = localStorage.getItem("token");
 
         const res = await axios.get(
-          "http://localhost:5000/api/rentdue/alldue",
+          "https://nestpay-backend.onrender.com/api/rentdue/alldue",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -51,7 +51,7 @@ const Payment = () => {
           const token = localStorage.getItem("token");
 
           await axios.post(
-            "http://localhost:5000/api/payment/verifyPayment",
+            "https://nestpay-backend.onrender.com/api/payment/verifyPayment",
             response,
             {
               headers: {
@@ -79,7 +79,7 @@ const Payment = () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.post(
-        "http://localhost:5000/api/payment/create-order",
+        "https://nestpay-backend.onrender.com/api/payment/create-order",
         { rentDueId },
         {
           headers: {
@@ -101,7 +101,7 @@ const Payment = () => {
       const token = localStorage.getItem("token");
 
       await axios.post(
-        "http://localhost:5000/api/payment/cash",
+        "https://nestpay-backend.onrender.com/api/payment/cash",
         { rentDueId },
         {
           headers: {

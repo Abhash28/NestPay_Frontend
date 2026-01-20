@@ -15,7 +15,7 @@ const Property = () => {
         const token = localStorage.getItem("token");
 
         const res = await axios.get(
-          "http://localhost:5000/api/property/all-property",
+          "https://nestpay-backend.onrender.com/api/property/all-property",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -34,7 +34,7 @@ const Property = () => {
     };
 
     fetchProperties();
-  }, []); // ✅ FIXED HERE
+  }, []); // FIXED HERE
 
   const hanldeEdit = (e, property) => {
     e.stopPropagation();
@@ -46,7 +46,7 @@ const Property = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        "http://localhost:5000/api/property/update-property",
+        "https://nestpay-backend.onrender.com/api/property/update-property",
         { property: selectProperty },
         {
           headers: { Authorization: `Bearer ${token}` },

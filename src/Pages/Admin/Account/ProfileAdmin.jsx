@@ -14,11 +14,14 @@ const ProfileAdmin = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/admin/profile", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        const res = await axios.get(
+          "https://nestpay-backend.onrender.com/api/admin/profile",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           },
-        });
+        );
 
         setProfile(res.data.profile);
         console.log(res.data.profile);
@@ -42,7 +45,7 @@ const ProfileAdmin = () => {
       setLoading(true);
 
       const res = await axios.put(
-        "http://localhost:5000/api/admin/profile-update",
+        "https://nestpay-backend.onrender.com/api/admin/profile-update",
         form,
         {
           headers: {

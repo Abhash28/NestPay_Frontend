@@ -10,7 +10,7 @@ const ProfileTenant = () => {
     const profileData = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/tenant/profile",
+          "https://nestpay-backend.onrender.com/api/tenant/profile",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

@@ -13,7 +13,7 @@ const TenantDashboard = () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "http://localhost:5000/api/allocation/tenant/home",
+        "https://nestpay-backend.onrender.com/api/allocation/tenant/home",
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -31,7 +31,7 @@ const TenantDashboard = () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "http://localhost:5000/api/rentdue/tenant/rent",
+        "https://nestpay-backend.onrender.com/api/rentdue/tenant/rent",
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -51,7 +51,7 @@ const TenantDashboard = () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "http://localhost:5000/api/payment/recent/tenant/paid",
+        "https://nestpay-backend.onrender.com/api/payment/recent/tenant/paid",
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -95,7 +95,7 @@ const TenantDashboard = () => {
           const token = localStorage.getItem("token");
 
           await axios.post(
-            "http://localhost:5000/api/payment/verifyPayment",
+            "https://nestpay-backend.onrender.com/api/payment/verifyPayment",
             response,
             {
               headers: {
@@ -123,7 +123,7 @@ const TenantDashboard = () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.post(
-        "http://localhost:5000/api/payment/create-order",
+        "https://nestpay-backend.onrender.com/api/payment/create-order",
         { rentDueId },
         {
           headers: {

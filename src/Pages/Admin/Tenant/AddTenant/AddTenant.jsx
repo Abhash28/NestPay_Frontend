@@ -25,13 +25,13 @@ const AddTenant = () => {
       const token = localStorage.getItem("token");
 
       await axios.post(
-        "http://localhost:5000/api/tenant/add-tenant",
+        "https://nestpay-backend.onrender.com/api/tenant/add-tenant",
         formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       setSuccess("Tenant added successfully");

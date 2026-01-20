@@ -18,7 +18,7 @@ const AddUnitModal = ({ propertyId, onClose, onSuccess }) => {
       const token = localStorage.getItem("token");
 
       await axios.post(
-        "http://localhost:5000/api/unit/create-unit",
+        "https://nestpay-backend.onrender.com/api/unit/create-unit",
         {
           propertyId,
           unitName,
@@ -28,7 +28,7 @@ const AddUnitModal = ({ propertyId, onClose, onSuccess }) => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       onSuccess(); // refresh unit list

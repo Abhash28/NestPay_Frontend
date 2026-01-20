@@ -18,7 +18,7 @@ const Tenant = () => {
         const token = localStorage.getItem("token");
 
         const res = await axios.get(
-          "http://localhost:5000/api/tenant/all-tenant",
+          "https://nestpay-backend.onrender.com/api/tenant/all-tenant",
           {
             headers: {
               Authorization: `Bearer ${token}`,

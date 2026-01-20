@@ -27,7 +27,7 @@ const TenantDetail = () => {
         const token = localStorage.getItem("token");
 
         const res = await axios.get(
-          `http://localhost:5000/api/allocation/tenant-info/${tenantId}`,
+          `https://nestpay-backend.onrender.com/api/allocation/tenant-info/${tenantId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -59,7 +59,7 @@ const TenantDetail = () => {
       const token = localStorage.getItem("token");
 
       await axios.post(
-        `http://localhost:5000/api/allocation/deallocate/${tenantId}`,
+        `https://nestpay-backend.onrender.com/api/allocation/deallocate/${tenantId}`,
         { endDate, deactivateReason, deactivateRemark },
         {
           headers: {
@@ -85,11 +85,11 @@ const TenantDetail = () => {
     }
   };
 
-  // ================= UI GUARDS =================
+  //  UI GUARDS
   if (fetching) return <p>Loading tenant details...</p>;
   if (!allocation) return <p>No allocation found for this tenant</p>;
 
-  // ================= SAFE DATA =================
+  //  SAFE DATA
   const tenant = allocation.tenantId;
   const unit = allocation.unitId;
   const property = allocation.propertyId;
@@ -101,7 +101,7 @@ const TenantDetail = () => {
       {error && <p style={{ color: "red" }}>{error}</p>}
       {success && <p style={{ color: "green" }}>{success}</p>}
 
-      {/* ================= TENANT ================= */}
+      {/*  TENANT  */}
       <p>
         <b>Name:</b> {tenant?.tenantName}
       </p>
@@ -120,7 +120,7 @@ const TenantDetail = () => {
 
       <hr />
 
-      {/* ================= PROPERTY ================= */}
+      {/* PROPERTY */}
       <h3>Property Details</h3>
       <p>
         <b>Property Name:</b> {property?.propertyName || "-"}
@@ -131,7 +131,7 @@ const TenantDetail = () => {
 
       <hr />
 
-      {/* ================= UNIT ================= */}
+      {/*  UNIT*/}
       <h3>Unit Details</h3>
       <p>
         <b>Unit Name:</b> {unit?.unitName || "-"}
@@ -145,7 +145,7 @@ const TenantDetail = () => {
 
       <hr />
 
-      {/* ================= ALLOCATION ================= */}
+      {/* ALLOCATION  */}
       <h3>Allocation Details</h3>
       <p>
         <b>Billing Day:</b> {allocation.billingDay}
@@ -185,7 +185,7 @@ const TenantDetail = () => {
         Deactivate
       </button>
 
-      {/* ================= MODAL ================= */}
+      {/*  MODAL  */}
       {showModal && (
         <div style={overlayStyle}>
           <div style={modalStyle}>

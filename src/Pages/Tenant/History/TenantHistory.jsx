@@ -7,7 +7,7 @@ const TenantHistory = () => {
   useEffect(() => {
     const showRentHistory = async () => {
       const res = await axios.get(
-        "http://localhost:5000/api/payment/tenant/history",
+        "https://nestpay-backend.onrender.com/api/payment/tenant/history",
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         },

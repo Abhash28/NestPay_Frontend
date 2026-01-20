@@ -9,7 +9,7 @@ const AdminDashboard = () => {
     const dashboardStats = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/property/dashboard-stats",
+          "https://nestpay-backend.onrender.com/api/property/dashboard-stats",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -25,7 +25,7 @@ const AdminDashboard = () => {
     const fetchRecentPaid = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/payment/recent-paid",
+          "https://nestpay-backend.onrender.com/api/payment/recent-paid",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
