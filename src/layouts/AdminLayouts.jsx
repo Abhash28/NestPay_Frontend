@@ -8,6 +8,7 @@ import {
   LogOut,
   Bell,
   Search,
+  Zap,
 } from "lucide-react";
 
 const AdminLayout = () => {
@@ -19,7 +20,7 @@ const AdminLayout = () => {
     navigate("/login");
   };
 
-  // Premium Link Style: No heavy background, just a clean indicator
+  // Premium Link Style: Matches the "Sign In" button hover feel
   const linkClass = ({ isActive }) =>
     `relative flex items-center gap-4 px-6 py-4 transition-all duration-300 group
      ${
@@ -29,72 +30,72 @@ const AdminLayout = () => {
      }`;
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex font-sans">
-      {/* ===== DESKTOP NAVIGATION (Floating Glass Sidebar) ===== */}
+    <div className="min-h-screen bg-[#f8fafc] flex font-sans selection:bg-indigo-100">
+      {/* ===== DESKTOP NAVIGATION (Cinematic Sidebar) ===== */}
       <aside className="hidden lg:flex w-80 flex-col p-6 sticky top-0 h-screen">
-        <div className="bg-white rounded-[32px] shadow-sm border border-slate-200/60 flex flex-col h-full overflow-hidden">
+        <div className="bg-[#0f172a] rounded-[32px] shadow-2xl shadow-slate-200 flex flex-col h-full overflow-hidden relative">
+          {/* Animated Background Glow (Same as Login Page) */}
+          <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+            <div className="absolute top-[-10%] right-[-10%] w-40 h-40 bg-indigo-600 rounded-full blur-[80px]"></div>
+          </div>
+
           {/* Logo Section */}
-          <div className="p-8 pb-10">
+          <div className="relative z-10 p-8">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200">
+              <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
                 <Building2 className="text-white w-6 h-6" />
               </div>
-              <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              <span className="text-2xl font-bold text-white tracking-tight">
                 NestPay
               </span>
+            </div>
+            <div className="mt-4 inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase tracking-wider">
+              <Zap className="w-3 h-3" /> Admin v2.0
             </div>
           </div>
 
           {/* Navigation Links */}
-          <nav className="flex-1 space-y-1">
+          <nav className="relative z-10 flex-1 px-4 space-y-1 mt-4">
             <SidebarLink
               to="/admin-dashboard"
               icon={<LayoutDashboard size={22} />}
               label="Dashboard"
-              isActive={linkClass}
             />
             <SidebarLink
               to="/admin-property"
               icon={<Building2 size={22} />}
               label="Properties"
-              isActive={linkClass}
             />
             <SidebarLink
               to="/admin-tenant"
               icon={<Users size={22} />}
               label="Tenants"
-              isActive={linkClass}
             />
             <SidebarLink
               to="/admin-payment"
               icon={<CreditCard size={22} />}
               label="Payments"
-              isActive={linkClass}
             />
             <SidebarLink
               to="/admin-account"
               icon={<User size={22} />}
-              label="Settings"
-              isActive={linkClass}
+              label="Profile"
             />
           </nav>
 
-          {/* Bottom Profile/Logout Section */}
-          <div className="p-6 mt-auto">
-            <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
-                AD
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-slate-900 truncate">
-                  Admin User
-                </p>
-                <p className="text-xs text-slate-500 truncate">nestpay.admin</p>
-              </div>
+          {/* Bottom Logout Card */}
+          <div className="relative z-10 p-6 mt-auto">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-4 backdrop-blur-sm">
+              <p className="text-slate-400 text-xs font-semibold mb-1 uppercase tracking-tighter">
+                Current Session
+              </p>
+              <p className="text-white text-sm font-bold truncate">
+                Admin Manager
+              </p>
             </div>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-rose-100 text-rose-500 font-bold text-sm hover:bg-rose-50 transition-all active:scale-95"
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white font-bold text-sm transition-all active:scale-95"
             >
               <LogOut size={18} /> Logout
             </button>
@@ -102,33 +103,36 @@ const AdminLayout = () => {
         </div>
       </aside>
 
-      {/* ===== MAIN CONTENT ===== */}
+      {/* ===== MAIN CONTENT AREA ===== */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Cinematic Header */}
-        <header className="px-6 lg:px-12 py-6 flex justify-between items-center bg-[#f8fafc]/80 backdrop-blur-md sticky top-0 z-40">
-          <div className="lg:hidden flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <Building2 className="text-white w-5 h-5" />
+        <header className="px-6 lg:px-12 py-6 flex justify-between items-center bg-white/70 backdrop-blur-xl sticky top-0 z-40 border-b border-slate-100">
+          <div className="lg:hidden flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#0f172a] rounded-xl flex items-center justify-center shadow-lg">
+              <Building2 className="text-indigo-400 w-6 h-6" />
             </div>
-            <span className="text-xl font-bold text-slate-900">NestPay</span>
+            <span className="text-xl font-bold text-slate-900 tracking-tight">
+              NestPay
+            </span>
           </div>
 
-          <div className="hidden lg:flex items-center bg-white border border-slate-200 px-4 py-2 rounded-2xl w-96 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all">
-            <Search className="text-slate-400 w-5 h-5" />
+          {/* Search Bar: Styled like your login inputs */}
+          <div className="hidden lg:flex items-center bg-slate-50 border border-slate-200 px-5 py-3 rounded-2xl w-96 focus-within:ring-4 focus-within:ring-indigo-500/5 focus-within:border-indigo-600/20 transition-all group">
+            <Search className="text-slate-400 w-5 h-5 group-focus-within:text-indigo-600 transition-colors" />
             <input
               type="text"
-              placeholder="Search properties, tenants..."
-              className="bg-transparent border-none outline-none px-3 text-sm w-full"
+              placeholder="Search data..."
+              className="bg-transparent border-none outline-none px-3 text-sm w-full font-medium"
             />
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="relative p-3 bg-white border border-slate-200 rounded-2xl text-slate-600 shadow-sm hover:bg-slate-50 transition-all">
+            <button className="relative p-3 bg-white border border-slate-200 rounded-2xl text-slate-500 shadow-sm hover:text-indigo-600 hover:border-indigo-100 transition-all">
               <Bell size={20} />
-              <span className="absolute top-3 right-3 w-2 h-2 bg-indigo-600 rounded-full border-2 border-white"></span>
+              <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-indigo-500 rounded-full border-2 border-white"></span>
             </button>
             <div
-              className="lg:hidden w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200"
+              className="lg:hidden w-11 h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center"
               onClick={handleLogout}
             >
               <LogOut size={20} />
@@ -136,28 +140,39 @@ const AdminLayout = () => {
           </div>
         </header>
 
-        {/* Content Viewport */}
-        <main className="px-6 lg:px-12 pb-24 lg:pb-12">
+        {/* Page Content */}
+        <main className="px-6 lg:px-12 py-8 pb-32 lg:pb-12">
           <Outlet />
         </main>
 
-        {/* ===== MOBILE DOCK (Bottom Nav) ===== */}
+        {/* ===== MOBILE DOCK (The iOS-Style floating bar) ===== */}
         <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
-          <nav className="bg-slate-900/95 backdrop-blur-lg rounded-[24px] px-4 py-3 flex items-center justify-between shadow-2xl shadow-indigo-900/20">
+          <nav className="bg-[#0f172a]/95 backdrop-blur-xl rounded-[28px] p-2 flex items-center justify-between shadow-2xl shadow-indigo-950/40 border border-white/10">
             <MobileNavLink
               to="/admin-dashboard"
-              icon={<LayoutDashboard size={22} />}
+              icon={<LayoutDashboard size={20} />}
+              label="Home"
             />
             <MobileNavLink
               to="/admin-property"
-              icon={<Building2 size={22} />}
+              icon={<Building2 size={20} />}
+              label="Units"
             />
-            <MobileNavLink to="/admin-tenant" icon={<Users size={22} />} />
+            <MobileNavLink
+              to="/admin-tenant"
+              icon={<Users size={20} />}
+              label="People"
+            />
             <MobileNavLink
               to="/admin-payment"
-              icon={<CreditCard size={22} />}
+              icon={<CreditCard size={20} />}
+              label="Bills"
             />
-            <MobileNavLink to="/admin-account" icon={<User size={22} />} />
+            <MobileNavLink
+              to="/admin-account"
+              icon={<User size={20} />}
+              label="Me"
+            />
           </nav>
         </div>
       </div>
@@ -165,35 +180,43 @@ const AdminLayout = () => {
   );
 };
 
-/* --- Helper Components for Cleanliness --- */
+/* --- Refined Sub-Components --- */
 
-const SidebarLink = ({ to, icon, label, isActive }) => (
-  <NavLink to={to} className={isActive}>
-    {({ isActive }) => (
-      <>
-        {/* Active Indicator Bar */}
-        {isActive && (
-          <div className="absolute left-0 w-1.5 h-8 bg-indigo-600 rounded-r-full" />
-        )}
-        <span
-          className={`${isActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-900"} transition-colors`}
-        >
-          {icon}
-        </span>
-        {label}
-      </>
-    )}
-  </NavLink>
-);
-
-const MobileNavLink = ({ to, icon }) => (
+const SidebarLink = ({ to, icon, label }) => (
   <NavLink
     to={to}
     className={({ isActive }) =>
-      `p-3 rounded-2xl transition-all duration-300 ${isActive ? "bg-indigo-600 text-white scale-110 shadow-lg shadow-indigo-500/40" : "text-slate-400"}`
+      `relative flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group
+     ${
+       isActive
+         ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/20"
+         : "text-slate-400 hover:text-white hover:bg-white/5"
+     }`
+    }
+  >
+    <span className="transition-transform group-hover:scale-110 duration-300">
+      {icon}
+    </span>
+    <span className="font-bold text-sm tracking-wide">{label}</span>
+  </NavLink>
+);
+
+const MobileNavLink = ({ to, icon, label }) => (
+  <NavLink
+    to={to}
+    className={({ isActive }) =>
+      `flex flex-col items-center gap-1 px-4 py-3 rounded-[20px] transition-all duration-300
+     ${
+       isActive
+         ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 scale-105"
+         : "text-slate-500 hover:text-slate-300"
+     }`
     }
   >
     {icon}
+    <span className="text-[10px] font-bold uppercase tracking-widest">
+      {label}
+    </span>
   </NavLink>
 );
 
