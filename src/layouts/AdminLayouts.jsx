@@ -1,13 +1,13 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
-  Home,
+  LayoutDashboard,
   Building2,
   Users,
   CreditCard,
-  Bell,
   User,
   LogOut,
-  LayoutDashboard,
+  Bell,
+  Search,
 } from "lucide-react";
 
 const AdminLayout = () => {
@@ -19,135 +19,182 @@ const AdminLayout = () => {
     navigate("/login");
   };
 
-  // Class for Desktop Sidebar Links
+  // Premium Link Style: No heavy background, just a clean indicator
   const linkClass = ({ isActive }) =>
-    `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200
+    `relative flex items-center gap-4 px-6 py-4 transition-all duration-300 group
      ${
        isActive
-         ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
-         : "text-slate-400 hover:bg-slate-800 hover:text-white"
+         ? "text-indigo-600 font-bold"
+         : "text-slate-500 hover:text-slate-900 font-medium"
      }`;
 
-  // Class for Mobile Bottom Nav Links
-  const mobileLinkClass = ({ isActive }) =>
-    `flex flex-col items-center justify-center gap-1 flex-1 transition-all
-     ${isActive ? "text-indigo-600" : "text-slate-400"}`;
-
   return (
-    <div className="flex min-h-screen bg-slate-50 font-sans">
-      {/* ===== DESKTOP SIDEBAR (Hidden on Mobile) ===== */}
-      <aside className="hidden lg:flex w-72 bg-[#0f172a] text-white flex-col sticky top-0 h-screen">
-        <div className="px-8 py-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <Building2 className="text-white w-6 h-6" />
+    <div className="min-h-screen bg-[#f8fafc] flex font-sans">
+      {/* ===== DESKTOP NAVIGATION (Floating Glass Sidebar) ===== */}
+      <aside className="hidden lg:flex w-80 flex-col p-6 sticky top-0 h-screen">
+        <div className="bg-white rounded-[32px] shadow-sm border border-slate-200/60 flex flex-col h-full overflow-hidden">
+          {/* Logo Section */}
+          <div className="p-8 pb-10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200">
+                <Building2 className="text-white w-6 h-6" />
+              </div>
+              <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                NestPay
+              </span>
             </div>
-            <span className="text-2xl font-bold tracking-tight">NestPay</span>
           </div>
-          <p className="text-xs text-slate-500 mt-2 ml-1 font-medium uppercase tracking-widest">
-            Administrator
-          </p>
-        </div>
 
-        <nav className="flex-1 px-4 space-y-2 mt-4">
-          <NavLink to="/admin-dashboard" className={linkClass}>
-            <LayoutDashboard size={20} /> Dashboard
-          </NavLink>
-          <NavLink to="/admin-property" className={linkClass}>
-            <Building2 size={20} /> Properties
-          </NavLink>
-          <NavLink to="/admin-tenant" className={linkClass}>
-            <Users size={20} /> Tenants
-          </NavLink>
-          <NavLink to="/admin-payment" className={linkClass}>
-            <CreditCard size={20} /> Payments
-          </NavLink>
-          <NavLink to="/admin-account" className={linkClass}>
-            <User size={20} /> Account settings
-          </NavLink>
-        </nav>
+          {/* Navigation Links */}
+          <nav className="flex-1 space-y-1">
+            <SidebarLink
+              to="/admin-dashboard"
+              icon={<LayoutDashboard size={22} />}
+              label="Dashboard"
+              isActive={linkClass}
+            />
+            <SidebarLink
+              to="/admin-property"
+              icon={<Building2 size={22} />}
+              label="Properties"
+              isActive={linkClass}
+            />
+            <SidebarLink
+              to="/admin-tenant"
+              icon={<Users size={22} />}
+              label="Tenants"
+              isActive={linkClass}
+            />
+            <SidebarLink
+              to="/admin-payment"
+              icon={<CreditCard size={22} />}
+              label="Payments"
+              isActive={linkClass}
+            />
+            <SidebarLink
+              to="/admin-account"
+              icon={<User size={22} />}
+              label="Settings"
+              isActive={linkClass}
+            />
+          </nav>
 
-        <div className="p-4 border-t border-slate-800/50">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-rose-400 hover:bg-rose-500/10 transition-colors"
-          >
-            <LogOut size={20} /> Logout
-          </button>
+          {/* Bottom Profile/Logout Section */}
+          <div className="p-6 mt-auto">
+            <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                AD
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-slate-900 truncate">
+                  Admin User
+                </p>
+                <p className="text-xs text-slate-500 truncate">nestpay.admin</p>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-rose-100 text-rose-500 font-bold text-sm hover:bg-rose-50 transition-all active:scale-95"
+            >
+              <LogOut size={18} /> Logout
+            </button>
+          </div>
         </div>
       </aside>
 
-      {/* ===== MAIN CONTENT AREA ===== */}
-      <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-0">
-        {/* TOP BAR (Visible on both, but styled differently) */}
-        <header className="bg-white/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-8 py-4 border-b border-slate-200 flex justify-between items-center">
-          <div>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-              Management
-            </h2>
-            <p className="hidden sm:block text-xs text-slate-500 font-medium">
-              Manage your properties and tenants
-            </p>
+      {/* ===== MAIN CONTENT ===== */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Cinematic Header */}
+        <header className="px-6 lg:px-12 py-6 flex justify-between items-center bg-[#f8fafc]/80 backdrop-blur-md sticky top-0 z-40">
+          <div className="lg:hidden flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <Building2 className="text-white w-5 h-5" />
+            </div>
+            <span className="text-xl font-bold text-slate-900">NestPay</span>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4">
-            <button className="p-2.5 rounded-full bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors relative">
+          <div className="hidden lg:flex items-center bg-white border border-slate-200 px-4 py-2 rounded-2xl w-96 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all">
+            <Search className="text-slate-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search properties, tenants..."
+              className="bg-transparent border-none outline-none px-3 text-sm w-full"
+            />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button className="relative p-3 bg-white border border-slate-200 rounded-2xl text-slate-600 shadow-sm hover:bg-slate-50 transition-all">
               <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
+              <span className="absolute top-3 right-3 w-2 h-2 bg-indigo-600 rounded-full border-2 border-white"></span>
             </button>
-            <button
+            <div
+              className="lg:hidden w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200"
               onClick={handleLogout}
-              className="lg:hidden p-2.5 rounded-full bg-rose-50 text-rose-600"
             >
               <LogOut size={20} />
-            </button>
-            <div className="hidden sm:block w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 border-2 border-white shadow-sm"></div>
+            </div>
           </div>
         </header>
 
-        {/* PAGE CONTENT */}
-        <main className="flex-1 p-4 sm:p-8">
-          <div className="max-w-7xl mx-auto">
-            <Outlet />
-          </div>
+        {/* Content Viewport */}
+        <main className="px-6 lg:px-12 pb-24 lg:pb-12">
+          <Outlet />
         </main>
 
-        {/* ===== MOBILE BOTTOM NAVIGATION (Only visible on Mobile) ===== */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-2 py-3 flex items-center justify-around z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-          <NavLink to="/admin-dashboard" className={mobileLinkClass}>
-            <LayoutDashboard size={22} />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">
-              Home
-            </span>
-          </NavLink>
-          <NavLink to="/admin-property" className={mobileLinkClass}>
-            <Building2 size={22} />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">
-              Units
-            </span>
-          </NavLink>
-          <NavLink to="/admin-tenant" className={mobileLinkClass}>
-            <Users size={22} />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">
-              Tenants
-            </span>
-          </NavLink>
-          <NavLink to="/admin-payment" className={mobileLinkClass}>
-            <CreditCard size={22} />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">
-              Pay
-            </span>
-          </NavLink>
-          <NavLink to="/admin-account" className={mobileLinkClass}>
-            <User size={22} />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">
-              Profile
-            </span>
-          </NavLink>
-        </nav>
+        {/* ===== MOBILE DOCK (Bottom Nav) ===== */}
+        <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
+          <nav className="bg-slate-900/95 backdrop-blur-lg rounded-[24px] px-4 py-3 flex items-center justify-between shadow-2xl shadow-indigo-900/20">
+            <MobileNavLink
+              to="/admin-dashboard"
+              icon={<LayoutDashboard size={22} />}
+            />
+            <MobileNavLink
+              to="/admin-property"
+              icon={<Building2 size={22} />}
+            />
+            <MobileNavLink to="/admin-tenant" icon={<Users size={22} />} />
+            <MobileNavLink
+              to="/admin-payment"
+              icon={<CreditCard size={22} />}
+            />
+            <MobileNavLink to="/admin-account" icon={<User size={22} />} />
+          </nav>
+        </div>
       </div>
     </div>
   );
 };
+
+/* --- Helper Components for Cleanliness --- */
+
+const SidebarLink = ({ to, icon, label, isActive }) => (
+  <NavLink to={to} className={isActive}>
+    {({ isActive }) => (
+      <>
+        {/* Active Indicator Bar */}
+        {isActive && (
+          <div className="absolute left-0 w-1.5 h-8 bg-indigo-600 rounded-r-full" />
+        )}
+        <span
+          className={`${isActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-900"} transition-colors`}
+        >
+          {icon}
+        </span>
+        {label}
+      </>
+    )}
+  </NavLink>
+);
+
+const MobileNavLink = ({ to, icon }) => (
+  <NavLink
+    to={to}
+    className={({ isActive }) =>
+      `p-3 rounded-2xl transition-all duration-300 ${isActive ? "bg-indigo-600 text-white scale-110 shadow-lg shadow-indigo-500/40" : "text-slate-400"}`
+    }
+  >
+    {icon}
+  </NavLink>
+);
 
 export default AdminLayout;
