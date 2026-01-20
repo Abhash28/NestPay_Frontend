@@ -1,14 +1,14 @@
-import "../../../components/Modal/modal.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { User, Phone, MapPin, Home, Info } from "lucide-react";
 
-const Tenant = () => {
+const InactiveTenant = () => {
   const navigate = useNavigate();
 
   const [tenants, setTenants] = useState([]);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
   // ================= FETCH TENANTS =================
@@ -16,19 +16,15 @@ const Tenant = () => {
     const fetchTenants = async () => {
       try {
         const token = localStorage.getItem("token");
-
         const res = await axios.get(
           "https://nestpay-backend.onrender.com/api/tenant/all-tenant",
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           },
         );
-
         setTenants(res.data.tenants || []);
-      } catch (error) {
-        setError(error.response?.data?.message || "Server not responding");
+      } catch (err) {
+        setError(err.response?.data?.message || "Server not responding");
       } finally {
         setLoading(false);
       }
@@ -37,77 +33,112 @@ const Tenant = () => {
     fetchTenants();
   }, []);
 
-  // ================= FILTER INACTIVE TENANTS =================
+  // ================= FILTER =================
   const inactiveTenants = tenants
-    .filter((tenant) => tenant.status === "Inactive")
-    .filter((tenant) =>
-      tenant.tenantName?.toLowerCase().includes(search.toLowerCase()),
-    );
+    .filter((t) => t.status === "Inactive")
+    .filter((t) => t.tenantName?.toLowerCase().includes(search.toLowerCase()));
 
   // ================= LOADING =================
-  if (loading) return <p>Loading tenants...</p>;
+  if (loading) {
+    return (
+      <div className="p-4 text-slate-500 text-sm">
+        Loading inactive tenants…
+      </div>
+    );
+  }
 
   return (
-    <>
-      <h2>Inactive Tenants</h2>
+    <div className="p-4 max-w-3xl mx-auto space-y-4">
+      {/* ===== HEADER ===== */}
+      <div>
+        <h1 className="text-xl font-bold text-slate-900">Inactive Tenants</h1>
+        <p className="text-xs text-slate-500">
+          Tenants who have exited or been deactivated
+        </p>
+      </div>
 
+      {/* ===== SEARCH ===== */}
       <input
         type="text"
-        placeholder="Search Tenants..."
+        placeholder="Search tenant name…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        style={{ marginBottom: "10px" }}
+        className="w-full px-3 py-2 bg-slate-50 border border-slate-200
+                   rounded-lg text-sm font-semibold outline-none"
       />
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && (
+        <div
+          className="bg-rose-50 text-rose-600 text-sm
+                        font-semibold p-3 rounded-lg"
+        >
+          {error}
+        </div>
+      )}
 
-      <table border="1" cellPadding="10" cellSpacing="0">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Tenant Name</th>
-            <th>Mobile No</th>
-            <th>Address</th>
-            <th>Status</th>
-            <th>Unit</th>
-            <th>Action</th>
-          </tr>
-        </thead>
+      {/* ===== LIST ===== */}
+      {inactiveTenants.length === 0 ? (
+        <div
+          className="bg-white border border-slate-200 rounded-xl
+                        p-6 text-center text-slate-500 text-sm"
+        >
+          No inactive tenants found
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {inactiveTenants.map((tenant) => (
+            <div
+              key={tenant._id}
+              className="bg-white border border-slate-200
+                         rounded-lg p-3 space-y-2"
+            >
+              {/* Top */}
+              <div className="flex items-center justify-between">
+                <p className="font-semibold text-slate-900">
+                  {tenant.tenantName}
+                </p>
 
-        <tbody>
-          {inactiveTenants.length === 0 ? (
-            <tr>
-              <td colSpan="6" style={{ textAlign: "center" }}>
-                No inactive tenants found
-              </td>
-            </tr>
-          ) : (
-            inactiveTenants.map((tenant, index) => (
-              <tr key={tenant._id}>
-                <td>{index + 1}</td>
-                <td>{tenant.tenantName}</td>
-                <td>{tenant.tenantMobileNo}</td>
-                <td>{tenant.tenantAddress}</td>
-                <td>{tenant.status}</td>
+                <span
+                  className="text-[11px] px-2 py-[2px]
+                                 rounded-full bg-slate-200
+                                 text-slate-700 font-semibold"
+                >
+                  Inactive
+                </span>
+              </div>
 
-                <td>{tenant.unitId?.unitName || "-"}</td>
+              {/* Info */}
+              <Row icon={<Phone />} text={tenant.tenantMobileNo} />
+              <Row icon={<MapPin />} text={tenant.tenantAddress || "—"} />
+              <Row
+                icon={<Home />}
+                text={tenant.unitId?.unitName || "No unit"}
+              />
 
-                <td>
-                  <button
-                    onClick={() =>
-                      navigate(`/admin-tenant/detail/${tenant._id}`)
-                    }
-                  >
-                    More
-                  </button>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </>
+              {/* Action */}
+              <button
+                onClick={() => navigate(`/admin-tenant/detail/${tenant._id}`)}
+                className="flex items-center gap-1 text-xs
+                           font-semibold text-indigo-600 pt-1"
+              >
+                <Info className="w-4 h-4" />
+                View Details
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
-export default Tenant;
+/* ===== SMALL UI ===== */
+
+const Row = ({ icon, text }) => (
+  <div className="flex items-center gap-2 text-[13px] text-slate-700">
+    <span className="text-slate-400">{icon}</span>
+    <span className="truncate">{text}</span>
+  </div>
+);
+
+export default InactiveTenant;

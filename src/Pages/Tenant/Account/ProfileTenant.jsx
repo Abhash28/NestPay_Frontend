@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { User, Phone, MapPin, ShieldCheck, Calendar } from "lucide-react";
 
 const ProfileTenant = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // ================= FETCH PROFILE =================
   useEffect(() => {
     const profileData = async () => {
       try {
@@ -17,7 +19,6 @@ const ProfileTenant = () => {
             },
           },
         );
-
         setProfile(res.data.profile);
       } catch (err) {
         console.error(err);
@@ -29,30 +30,97 @@ const ProfileTenant = () => {
 
     profileData();
   }, []);
+
   // ================= UI STATES =================
-  if (loading) return <p>Loading tenant profile...</p>;
-  if (error) return <p>{error}</p>;
-  if (!profile) return <p>No profile found</p>;
+  if (loading)
+    return (
+      <div className="text-center text-slate-500 font-semibold">
+        Loading profile…
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="text-center text-rose-600 font-semibold">{error}</div>
+    );
+
+  if (!profile)
+    return <div className="text-center text-slate-500">No profile found</div>;
 
   return (
-    <div>
-      <h2>Tenant Profile</h2>
+    <div className="space-y-6">
+      {/* ===== PROFILE HEADER ===== */}
+      <div className="flex flex-col items-center text-center">
+        <div
+          className="w-20 h-20 rounded-full bg-indigo-100
+                        flex items-center justify-center"
+        >
+          <User className="w-9 h-9 text-indigo-600" />
+        </div>
 
-      <label>Name</label>
-      <input value={profile.tenantName || ""} readOnly />
+        <h1 className="mt-3 text-xl font-black text-slate-900">
+          {profile.tenantName}
+        </h1>
 
-      <label>Mobile No</label>
-      <input value={profile.tenantMobileNo || ""} readOnly />
+        <span
+          className={`mt-1 text-xs font-black px-3 py-1 rounded-full
+            ${
+              profile.status === "Active"
+                ? "bg-emerald-50 text-emerald-600"
+                : "bg-rose-50 text-rose-600"
+            }`}
+        >
+          {profile.status}
+        </span>
+      </div>
 
-      <label>Status</label>
-      <input value={profile.status || ""} readOnly />
+      {/* ===== DETAILS CARD ===== */}
+      <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
+        <InfoRow
+          icon={<Phone />}
+          label="Mobile Number"
+          value={profile.tenantMobileNo}
+        />
 
-      <label>Address</label>
-      <input value={profile.tenantAddress || "-"} readOnly />
+        <InfoRow
+          icon={<MapPin />}
+          label="Address"
+          value={profile.tenantAddress || "—"}
+        />
 
-      <p>Joined On: {new Date(profile.createdAt).toLocaleDateString()}</p>
+        <InfoRow icon={<ShieldCheck />} label="Account Type" value="Tenant" />
+
+        <InfoRow
+          icon={<Calendar />}
+          label="Joined On"
+          value={new Date(profile.createdAt).toLocaleDateString()}
+        />
+      </div>
     </div>
   );
 };
+
+/* ================= SMALL UI ================= */
+
+const InfoRow = ({ icon, label, value }) => (
+  <div className="flex items-start gap-3">
+    <div
+      className="w-10 h-10 rounded-lg bg-slate-100
+                    flex items-center justify-center text-slate-500"
+    >
+      {icon}
+    </div>
+
+    <div className="flex-1">
+      <p
+        className="text-[11px] font-black text-slate-400
+                    uppercase tracking-widest"
+      >
+        {label}
+      </p>
+      <p className="font-bold text-slate-800 text-sm">{value}</p>
+    </div>
+  </div>
+);
 
 export default ProfileTenant;

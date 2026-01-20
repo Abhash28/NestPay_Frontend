@@ -1,25 +1,37 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {
+  Building2,
+  MapPin,
+  IndianRupee,
+  CheckCircle2,
+  AlertTriangle,
+  Loader2,
+} from "lucide-react";
 
 const AddProperty = () => {
-  //navigate
   const navigate = useNavigate();
-  // Field names must match DB schema
+
   const [formData, setFormData] = useState({
     propertyName: "",
     propertyAddress: "",
     monthlyRent: "",
   });
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleAddProperty = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
+    setLoading(true);
+
     try {
-      //fetching token form local storage
       const token = localStorage.getItem("token");
+
       await axios.post(
         "https://nestpay-backend.onrender.com/api/property/add-property",
         formData,
@@ -29,72 +41,132 @@ const AddProperty = () => {
           },
         },
       );
+
       setFormData({
         propertyName: "",
         propertyAddress: "",
         monthlyRent: "",
       });
-      //show success message
-      setSuccess("Property added successfully!");
-      //after 3 sec success message gone
+
+      setSuccess("Property added successfully");
+
       setTimeout(() => {
-        setSuccess("");
-        //navigate to main property page
         navigate("/admin-property");
-      }, 2000);
+      }, 1500);
     } catch (error) {
       if (error.response) {
         setError(error.response.data.message);
       } else {
-        setError("Server not Responding");
+        setError("Server not responding");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      <h2>Add Property</h2>
-      {/*Success Message */}
-      {success && <p>{success}</p>}
-      {/*Error log while Adding property */}
-      {error && <p>{error}</p>}
-      <form onSubmit={handleAddProperty}>
-        <p>Property Details</p>
+    <div className="p-4 max-w-xl mx-auto space-y-5">
+      {/* ===== HEADER ===== */}
+      <div>
+        <h1 className="text-xl font-black text-slate-900">Add Property</h1>
+        <p className="text-xs text-slate-500">Create a new rental property</p>
+      </div>
 
-        <label>Property Name</label>
-        <input
-          type="text"
+      {/* ===== FEEDBACK ===== */}
+      {success && (
+        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-bold rounded-lg px-4 py-3">
+          <CheckCircle2 className="w-4 h-4" />
+          {success}
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-center gap-2 bg-rose-50 border border-rose-200 text-rose-700 text-sm font-bold rounded-lg px-4 py-3">
+          <AlertTriangle className="w-4 h-4" />
+          {error}
+        </div>
+      )}
+
+      {/* ===== FORM CARD ===== */}
+      <form
+        onSubmit={handleAddProperty}
+        className="bg-white border border-slate-200 rounded-xl p-4 space-y-4"
+      >
+        <Input
+          icon={<Building2 />}
+          label="Property Name"
+          placeholder="e.g. Green Residency"
           value={formData.propertyName}
-          placeholder="Enter Property Name..."
           onChange={(e) =>
             setFormData({ ...formData, propertyName: e.target.value })
           }
         />
 
-        <label>Property Address</label>
-        <input
-          type="text"
+        <Input
+          icon={<MapPin />}
+          label="Property Address"
+          placeholder="Full address"
           value={formData.propertyAddress}
-          placeholder="Enter Property Address"
           onChange={(e) =>
             setFormData({ ...formData, propertyAddress: e.target.value })
           }
         />
 
-        <label>Monthly Rent</label>
-        <input
+        <Input
+          icon={<IndianRupee />}
+          label="Monthly Rent"
           type="number"
+          placeholder="Rent amount"
           value={formData.monthlyRent}
-          placeholder="Enter Rent Amount..."
           onChange={(e) =>
             setFormData({ ...formData, monthlyRent: e.target.value })
           }
         />
 
-        <button type="submit">Submit</button>
+        {/* ===== ACTION ===== */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-[#020617] hover:bg-indigo-700 text-white
+                     font-black py-3 rounded-lg transition
+                     flex items-center justify-center gap-2
+                     disabled:bg-slate-300"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Saving…
+            </>
+          ) : (
+            "Add Property"
+          )}
+        </button>
       </form>
-    </>
+    </div>
   );
 };
+
+/* ===== Reusable Input ===== */
+
+const Input = ({ icon, label, ...props }) => (
+  <div className="space-y-1.5">
+    <label className="text-[10px] uppercase tracking-widest font-black text-slate-400">
+      {label}
+    </label>
+    <div className="relative">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+        {icon}
+      </div>
+      <input
+        {...props}
+        required
+        className="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200
+                   rounded-lg focus:bg-white focus:border-indigo-600
+                   focus:ring-2 focus:ring-indigo-500/10 outline-none
+                   font-bold text-slate-900 text-sm placeholder:text-slate-300"
+      />
+    </div>
+  </div>
+);
 
 export default AddProperty;

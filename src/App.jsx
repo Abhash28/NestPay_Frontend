@@ -26,6 +26,7 @@ import TenantDashboard from "./Pages/Tenant/Dashboard";
 import TenantHistory from "./Pages/Tenant/History/TenantHistory";
 import TenantNotification from "./Pages/Tenant/Notification/TenantNotification";
 import ProfileTenant from "./Pages/Tenant/Account/ProfileTenant";
+import PaymentHistory from "./Pages/Admin/Payment/PaymentHistory";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -74,7 +75,7 @@ function App() {
             element={<UnitDetail />}
           />
           <Route
-            path="/admin/property/unit-detail/:propertyId/allocation"
+            path="/admin/property/:propertyId/unit-detail/allocation"
             element={<UnitAllocation />}
           />
           <Route path="/admin-tenant" element={<Tenant />} />
@@ -85,6 +86,7 @@ function App() {
           />
           <Route path="/admin/tenant/add-tenant" element={<AddTenant />} />
           <Route path="/admin-payment" element={<Payment />} />
+          <Route path="/admin-payment-history" element={<PaymentHistory />} />
           <Route path="/admin-account" element={<AccountAdmin />} />
         </Route>
 

@@ -1,79 +1,64 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  Home,
+  IndianRupee,
+  Calendar,
+  User,
+  Phone,
+  Wallet,
+  ArrowRight,
+} from "lucide-react";
+import formatMonthYear from "../../../utils/convertMonth";
 
 const TenantDashboard = () => {
-  const [tenant, setTenant] = useState();
+  const [tenant, setTenant] = useState(null);
   const [rent, setRent] = useState([]);
   const [lastPay, setLastPay] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ================= FETCH TENANT INFO =================
-  const fetchTenantDetail = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const res = await axios.get(
-        "https://nestpay-backend.onrender.com/api/allocation/tenant/home",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-
-      setTenant(res.data.tenantInfo);
-    } catch (error) {
-      console.error("Tenant fetch error:", error);
-    }
-  };
-
-  // ================= FETCH RENT DUES =================
-  const fetchRentDue = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const res = await axios.get(
-        "https://nestpay-backend.onrender.com/api/rentdue/tenant/rent",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-
-      setRent(res.data.allRent || []);
-    } catch (error) {
-      console.error("Rent fetch error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  //fetch last payment
-  const lastPayment = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const res = await axios.get(
-        "https://nestpay-backend.onrender.com/api/payment/recent/tenant/paid",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-
-      setLastPay(res.data.recentPayment);
-    } catch (error) {
-      console.error("Rent fetch error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // ================= FETCH DATA =================
   useEffect(() => {
-    fetchTenantDetail();
-    fetchRentDue();
-    lastPayment();
+    const token = localStorage.getItem("token");
+
+    const fetchAll = async () => {
+      try {
+        const [tenantRes, rentRes, payRes] = await Promise.all([
+          axios.get(
+            "https://nestpay-backend.onrender.com/api/allocation/tenant/home",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          ),
+          axios.get(
+            "https://nestpay-backend.onrender.com/api/rentdue/tenant/rent",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          ),
+          axios.get(
+            "https://nestpay-backend.onrender.com/api/payment/recent/tenant/paid",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          ),
+        ]);
+
+        setTenant(tenantRes.data.tenantInfo);
+        setRent(rentRes.data.allRent || []);
+        setLastPay(payRes.data.recentPayment || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAll();
   }, []);
-  console.log(lastPay);
-  // ================= FILTER PENDING RENT =================
-  const pendingRent = Array.isArray(rent)
-    ? rent.filter((r) => r.status === "Pending")
-    : [];
+
+  // ================= FILTER =================
+  const pendingRent = rent.filter((r) => r.status === "Pending");
 
   // ================= RAZORPAY =================
   const openRazorpay = (orderData) => {
@@ -89,171 +74,156 @@ const TenantDashboard = () => {
       name: "NestPay",
       description: "Monthly Rent Payment",
       order_id: orderData.orderId,
-
-      handler: async function (response) {
+      handler: async (response) => {
         try {
           const token = localStorage.getItem("token");
-
           await axios.post(
             "https://nestpay-backend.onrender.com/api/payment/verifyPayment",
             response,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            },
+            { headers: { Authorization: `Bearer ${token}` } },
           );
-
           alert("Payment Successful");
           window.location.reload();
-        } catch (err) {
+        } catch {
           alert("Payment verification failed");
-          console.error(err);
         }
       },
     };
 
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+    new window.Razorpay(options).open();
   };
 
-  // ================= PAY HANDLER =================
   const handlePay = async (rentDueId) => {
     try {
       const token = localStorage.getItem("token");
-
       const res = await axios.post(
         "https://nestpay-backend.onrender.com/api/payment/create-order",
         { rentDueId },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-
       openRazorpay(res.data);
-    } catch (error) {
-      console.error("Create order error:", error);
+    } catch {
       alert("Unable to initiate payment");
     }
   };
 
+  // ================= LOADING =================
   if (loading || !tenant) {
-    return <h2>Loading tenant dashboard...</h2>;
+    return (
+      <div className="text-center text-slate-500 font-semibold">
+        Loading your home…
+      </div>
+    );
   }
-  console.log(lastPay);
-  return (
-    <div style={{ padding: "20px" }}>
-      {/* ================= PROPERTY INFO ================= */}
-      <div style={{ marginBottom: "20px" }}>
-        <h2>Welcome to {tenant.propertyId.propertyName}</h2>
 
-        <p>
-          <strong>Unit:</strong> {tenant.unitId.unitName}
-        </p>
-        <p>
-          <strong>Rent:</strong> ₹{tenant.rentAmount}
-        </p>
-        <p>
-          <strong>Address:</strong> {tenant.propertyId.propertyAddress}
-        </p>
-        <p>
-          <strong>Start Date:</strong>{" "}
-          {new Date(tenant.startDate).toLocaleDateString()}
-        </p>
-        <p>
-          <strong>Owner Info:</strong> {tenant.adminId.name} (
-          {tenant.adminId.mobileNo})
-        </p>
+  return (
+    <div className="space-y-6">
+      {/* ===== PROPERTY CARD ===== */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
+        <h2 className="text-lg font-black text-slate-900">
+          {tenant.propertyId.propertyName}
+        </h2>
+
+        <Info icon={<Home />} text={`Unit ${tenant.unitId.unitName}`} />
+        <Info icon={<IndianRupee />} text={`₹${tenant.rentAmount} / month`} />
+        <Info
+          icon={<Calendar />}
+          text={`Started on ${new Date(tenant.startDate).toLocaleDateString()}`}
+        />
+        <Info icon={<User />} text={`Owner: ${tenant.adminId.name}`} />
+        <Info icon={<Phone />} text={tenant.adminId.mobileNo} />
       </div>
 
-      {/* ================= RENT DUE ================= */}
-      <div>
-        <h3>Rent Due</h3>
+      {/* ===== PENDING RENT ===== */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">
+          Rent Due
+        </h3>
 
-        {pendingRent.length > 0 ? (
+        {pendingRent.length === 0 ? (
+          <div className="bg-emerald-50 text-emerald-700 font-semibold p-4 rounded-xl">
+            No pending rent 🎉
+          </div>
+        ) : (
           pendingRent.map((r) => (
             <div
               key={r._id}
-              style={{
-                border: "1px solid #ccc",
-                padding: "10px",
-                marginBottom: "10px",
-              }}
+              className="bg-white border border-slate-200 rounded-xl p-4 space-y-3"
             >
-              <p>
-                <strong>Month:</strong> {r.month}
-              </p>
-              <p>
-                <strong>Amount:</strong> ₹{r.rentAmount}
-              </p>
-              <p>
-                <strong>Due Date:</strong> {new Date(r.dueDate).toDateString()}
+              <div className="flex justify-between items-center">
+                <p className="font-black text-slate-900">
+                  {formatMonthYear(r.month)}
+                </p>
+                <span className="text-sm font-black text-rose-600">
+                  ₹{r.rentAmount}
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-500">
+                Due on{" "}
+                <span className="font-bold">
+                  {new Date(r.dueDate).toLocaleDateString()}
+                </span>
               </p>
 
-              <button onClick={() => handlePay(r._id)}>Pay Now</button>
+              <button
+                onClick={() => handlePay(r._id)}
+                className="w-full bg-indigo-600 text-white font-black
+                           py-3 rounded-xl flex items-center
+                           justify-center gap-2 active:scale-[0.98]"
+              >
+                <Wallet className="w-5 h-5" />
+                Pay Now
+              </button>
             </div>
           ))
-        ) : (
-          <p>No pending rent 🎉</p>
         )}
       </div>
 
-      {/* ================= LAST PAYMENT ================= */}
-      <div style={{ marginTop: "30px" }}>
-        <h3>Last Payment</h3>
+      {/* ===== LAST PAYMENT ===== */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">
+          Last Payment
+        </h3>
 
-        {lastPay.length > 0 ? (
+        {lastPay.length === 0 ? (
+          <p className="text-slate-500 text-sm">No payment history available</p>
+        ) : (
           lastPay.map((p) => (
             <div
               key={p._id}
-              style={{
-                border: "1px solid #ddd",
-                padding: "12px",
-                borderRadius: "8px",
-                marginBottom: "10px",
-                background: "#f9fafb",
-              }}
+              className="bg-white border border-slate-200 rounded-xl p-4 space-y-2"
             >
-              <p>
-                <strong>Month:</strong> {p.rentDueId?.month || "N/A"}
+              <p className="font-black text-slate-900">
+                {formatMonthYear(p.rentDueId?.month)}
               </p>
 
-              <p>
-                <strong>Rent Amount:</strong> ₹{p.amount}
+              <p className="text-sm text-slate-600">
+                Paid ₹{p.amount} on {new Date(p.paidAt).toLocaleDateString()}
               </p>
 
-              <p>
-                <strong>Due Date:</strong>{" "}
-                {p.rentDueId?.dueDate
-                  ? new Date(p.rentDueId.dueDate).toDateString()
-                  : "N/A"}
-              </p>
-
-              <p>
-                <strong>Paid Date:</strong> {new Date(p.paidAt).toDateString()}
-              </p>
-
-              <p>
-                <strong>Status:</strong>{" "}
-                <span
-                  style={{
-                    color: p.status === "SUCCESS" ? "green" : "red",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {p.status}
-                </span>
+              <p
+                className={`text-xs font-black ${
+                  p.status === "SUCCESS" ? "text-emerald-600" : "text-rose-600"
+                }`}
+              >
+                {p.status}
               </p>
             </div>
           ))
-        ) : (
-          <p>No payment history available</p>
         )}
       </div>
     </div>
   );
 };
+
+/* ===== SMALL UI ===== */
+
+const Info = ({ icon, text }) => (
+  <div className="flex items-center gap-2 text-sm text-slate-600">
+    <span className="text-slate-400">{icon}</span>
+    <span>{text}</span>
+  </div>
+);
 
 export default TenantDashboard;
