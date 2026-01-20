@@ -28,6 +28,9 @@ import TenantNotification from "./Pages/Tenant/Notification/TenantNotification";
 import ProfileTenant from "./Pages/Tenant/Account/ProfileTenant";
 
 function App() {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
   return (
     <BrowserRouter>
       <Routes>
@@ -35,11 +38,11 @@ function App() {
         <Route
           path="/"
           element={
-            localStorage.getItem("token") ? (
-              localStorage.getItem("role") === "admin" ? (
+            token ? (
+              role === "admin" ? (
                 <Navigate to="/admin-dashboard" />
               ) : (
-                <Navigate to="/tenant" />
+                <Navigate to="/tenant-home" />
               )
             ) : (
               <Navigate to="/login" />
@@ -54,166 +57,49 @@ function App() {
 
         {/* ================= ADMIN ROUTES ================= */}
         <Route
-          path="/admin-dashboard"
           element={
             <ProtectedRoute allowedRole="admin">
               <AdminLayout />
             </ProtectedRoute>
           }
         >
-          <Route index element={<Dashboard />} />
-        </Route>
-
-        <Route
-          path="/admin-property"
-          element={
-            <ProtectedRoute allowedRole="admin">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Property />} />
-        </Route>
-
-        <Route
-          path="/admin/property/add-property"
-          element={
-            <ProtectedRoute allowedRole="admin">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<AddProperty />} />
-        </Route>
-
-        <Route
-          path="/admin/property/:propertyId/unit-detail"
-          element={
-            <ProtectedRoute allowedRole="admin">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<UnitDetail />} />
-        </Route>
-
-        <Route
-          path="/admin/property/unit-detail/:propertyId/allocation"
-          element={
-            <ProtectedRoute allowedRole="admin">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<UnitAllocation />} />
-        </Route>
-
-        <Route
-          path="/admin-tenant"
-          element={
-            <ProtectedRoute allowedRole="admin">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Tenant />} />
-        </Route>
-
-        <Route
-          path="/admin-tenant/deactive"
-          element={
-            <ProtectedRoute allowedRole="admin">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<DeactiveTenant />} />
-        </Route>
-
-        <Route
-          path="/admin-tenant/detail/:tenantId"
-          element={
-            <ProtectedRoute allowedRole="admin">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<TenantDetail />} />
-        </Route>
-
-        <Route
-          path="/admin/tenant/add-tenant"
-          element={
-            <ProtectedRoute allowedRole="admin">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<AddTenant />} />
-        </Route>
-
-        <Route
-          path="/admin-payment"
-          element={
-            <ProtectedRoute allowedRole="admin">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Payment />} />
-        </Route>
-        <Route
-          path="/admin-account"
-          element={
-            <ProtectedRoute allowedRole="admin">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<AccountAdmin />} />
+          <Route path="/admin-dashboard" element={<Dashboard />} />
+          <Route path="/admin-property" element={<Property />} />
+          <Route
+            path="/admin/property/add-property"
+            element={<AddProperty />}
+          />
+          <Route
+            path="/admin/property/:propertyId/unit-detail"
+            element={<UnitDetail />}
+          />
+          <Route
+            path="/admin/property/unit-detail/:propertyId/allocation"
+            element={<UnitAllocation />}
+          />
+          <Route path="/admin-tenant" element={<Tenant />} />
+          <Route path="/admin-tenant/deactive" element={<DeactiveTenant />} />
+          <Route
+            path="/admin-tenant/detail/:tenantId"
+            element={<TenantDetail />}
+          />
+          <Route path="/admin/tenant/add-tenant" element={<AddTenant />} />
+          <Route path="/admin-payment" element={<Payment />} />
+          <Route path="/admin-account" element={<AccountAdmin />} />
         </Route>
 
         {/* ================= TENANT ROUTES ================= */}
         <Route
-          path="/tenant-home"
           element={
             <ProtectedRoute allowedRole="tenant">
               <TenantLayout />
             </ProtectedRoute>
           }
         >
-          <Route index element={<TenantDashboard />} />
-        </Route>
-        <Route
-          path="/tenant-history"
-          element={
-            <ProtectedRoute allowedRole="tenant">
-              <TenantLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<TenantHistory />} />
-        </Route>
-        <Route
-          path="/tenant-notification"
-          element={
-            <ProtectedRoute allowedRole="tenant">
-              <TenantLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<TenantNotification />} />
-        </Route>
-        {/*tenant account */}
-        <Route
-          path="/tenant-account"
-          element={
-            <ProtectedRoute allowedRole="tenant">
-              <TenantLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<ProfileTenant />} />
+          <Route path="/tenant-home" element={<TenantDashboard />} />
+          <Route path="/tenant-history" element={<TenantHistory />} />
+          <Route path="/tenant-notification" element={<TenantNotification />} />
+          <Route path="/tenant-account" element={<ProfileTenant />} />
         </Route>
       </Routes>
     </BrowserRouter>
