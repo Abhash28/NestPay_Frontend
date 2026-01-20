@@ -26,7 +26,7 @@ const Tenant = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         setTenants(res.data.tenants || []);
@@ -40,7 +40,7 @@ const Tenant = () => {
     };
 
     fetchTenants();
-  }, [tenants]);
+  }, []);
 
   // only active tenants
   const activeTenants = tenants.filter((tenant) => tenant.status === "Active");
@@ -57,7 +57,7 @@ const Tenant = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       setShowEditModal(false);
@@ -88,8 +88,8 @@ const Tenant = () => {
             <th>#</th>
             <th>Tenant Name</th>
             <th>Mobile No</th>
-            <th>Address</th>
-            <th>Status</th>
+            <th>Property</th>
+            <th>Unit</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -107,8 +107,9 @@ const Tenant = () => {
                 <td>{index + 1}</td>
                 <td>{tenant.tenantName}</td>
                 <td>{tenant.tenantMobileNo}</td>
-                <td>{tenant.tenantAddress}</td>
-                <td>{tenant.status}</td>
+                <td>{tenant.unitId?.propertyId?.propertyName || "-"}</td>
+                <td>{tenant.unitId?.unitName || "-"}</td>
+
                 <td>
                   <button
                     onClick={() =>

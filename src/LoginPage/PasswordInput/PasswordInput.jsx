@@ -9,9 +9,7 @@ function PasswordInputField({ formData, setformData }) {
       <label
         htmlFor="Password"
         className="text-sm font-medium text-gray-700"
-      >
-        Password
-      </label>
+      ></label>
 
       <div className="relative">
         <input
@@ -30,7 +28,11 @@ function PasswordInputField({ formData, setformData }) {
           onClick={() => setisVisible(!isVisible)}
           className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer hover:text-indigo-600 transition"
         >
-          {isVisible ? <MdVisibility size={20} /> : <MdVisibilityOff size={20} />}
+          {isVisible ? (
+            <MdVisibility size={20} />
+          ) : (
+            <MdVisibilityOff size={20} />
+          )}
         </span>
       </div>
     </div>

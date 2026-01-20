@@ -22,7 +22,7 @@ const UnitDetail = () => {
       const token = localStorage.getItem("token");
       const res = await axios.get(
         `http://localhost:5000/api/property/all-units/${propertyId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setUnits(res.data.units || []);
     } catch (error) {
@@ -50,7 +50,7 @@ const UnitDetail = () => {
         { propertyId, unitName, monthlyRent },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        },
       );
 
       setUnitName("");
@@ -78,7 +78,7 @@ const UnitDetail = () => {
         { unitId: selectedUnit._id, unitName, monthlyRent },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        },
       );
 
       setShowEditModal(false);
@@ -99,7 +99,6 @@ const UnitDetail = () => {
         onClick={() =>
           navigate(`/admin/property/unit-detail/${propertyId}/allocation`)
         }
-        disabled={vacantCount === 0}
       >
         Unit Allocation
       </button>
@@ -111,9 +110,10 @@ const UnitDetail = () => {
           <tr>
             <th>#</th>
             <th>Unit Name</th>
-            <th>Status</th>
             <th>Rent</th>
-            <th>Action</th>
+            <th>Tenant Name</th>
+            <th>Tenant Mobile No</th>
+            <th>Status</th>
           </tr>
         </thead>
 
@@ -129,8 +129,11 @@ const UnitDetail = () => {
               <tr key={unit._id}>
                 <td>{index + 1}</td>
                 <td>{unit.unitName}</td>
-                <td>{unit.status === "occupied" ? "Occupied" : "Vacant"}</td>
                 <td>₹{unit.monthlyRent}</td>
+                <td>{unit.tenantId?.tenantName || "-"}</td>
+                <td>{unit.tenantId?.tenantMobileNo || "-"}</td>
+                <td>{unit.status === "occupied" ? "Occupied" : "Vacant"}</td>
+
                 <td>
                   <button onClick={() => handleEditClick(unit)}>Edit</button>
                 </td>

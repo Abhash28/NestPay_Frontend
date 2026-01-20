@@ -17,10 +17,10 @@ const Payment = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
-        setRentDues(res.data.rentDues);
+        setRentDues(res.data.rentDues || []);
       } catch (error) {
         console.error("Fetch dues error:", error);
       } finally {
@@ -39,8 +39,8 @@ const Payment = () => {
     }
 
     const options = {
-      key: orderData.key, // public key
-      amount: orderData.amount, // paise
+      key: orderData.key,
+      amount: orderData.amount,
       currency: "INR",
       name: "NestPay",
       description: "Monthly Rent Payment",
@@ -49,7 +49,7 @@ const Payment = () => {
       handler: async function (response) {
         try {
           const token = localStorage.getItem("token");
-          //  Verify payment
+
           await axios.post(
             "http://localhost:5000/api/payment/verifyPayment",
             response,
@@ -57,19 +57,15 @@ const Payment = () => {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            }
+            },
           );
 
-          alert("Payment Successful ");
+          alert("Payment Successful");
           window.location.reload();
         } catch (err) {
           alert("Payment verification failed");
           console.error(err);
         }
-      },
-
-      theme: {
-        color: "#2563eb",
       },
     };
 
@@ -77,12 +73,11 @@ const Payment = () => {
     rzp.open();
   };
 
-  //  Handle Pay button click
+  // Handle Pay
   const handlePay = async (rentDueId) => {
     try {
       const token = localStorage.getItem("token");
 
-      //  Create order
       const res = await axios.post(
         "http://localhost:5000/api/payment/create-order",
         { rentDueId },
@@ -90,14 +85,35 @@ const Payment = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
-      //  Open Razorpay checkout
       openRazorpay(res.data);
     } catch (error) {
       console.error("Create order error:", error);
       alert("Unable to initiate payment");
+    }
+  };
+
+  //handle cash btn
+  const handleCash = async (rentDueId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.post(
+        "http://localhost:5000/api/payment/cash",
+        { rentDueId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      alert("Cash payment recorded");
+      window.location.reload();
+    } catch (error) {
+      alert(error.response?.data?.message || "Cash payment failed");
     }
   };
 
@@ -110,46 +126,66 @@ const Payment = () => {
       {rentDues.length === 0 ? (
         <p>No rent dues found</p>
       ) : (
-        rentDues.map((due) => (
-          <div
-            key={due._id}
-            style={{
-              border: "1px solid #ddd",
-              padding: "10px",
-              marginBottom: "10px",
-              borderRadius: "6px",
-            }}
-          >
-            <p>
-              <strong>Month:</strong> {due.month}
-            </p>
-            <p>
-              <strong>Rent:</strong> ₹{due.rentAmount}
-            </p>
-            <p>
-              <strong>Due Date:</strong> {new Date(due.dueDate).toDateString()}
-            </p>
-            <p>
-              <strong>Status:</strong>{" "}
-              <span
-                style={{
-                  color:
-                    due.status === "Paid"
-                      ? "green"
-                      : due.status === "Overdue"
-                      ? "red"
-                      : "orange",
-                }}
-              >
-                {due.status}
-              </span>
-            </p>
+        <table border="1" cellPadding="10" cellSpacing="0" width="100%">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tenant</th>
+              <th>Property</th>
+              <th>Unit</th>
+              <th>Month</th>
+              <th>Due Date</th>
+              <th>Rent</th>
 
-            {due.status !== "Paid" && (
-              <button onClick={() => handlePay(due._id)}>Pay Now</button>
-            )}
-          </div>
-        ))
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {rentDues.map((due, index) => (
+              <tr key={due._id}>
+                <td>{index + 1}</td>
+                <td>{due.tenantId?.tenantName}</td>
+                <td>{due.propertyId?.propertyName}</td>
+                <td>{due.unitId?.unitName}</td>
+                <td>{due.month}</td>
+                <td>{new Date(due.dueDate).toDateString()}</td>
+
+                <td>₹{due.rentAmount}</td>
+
+                <td
+                  style={{
+                    color:
+                      due.status === "Paid"
+                        ? "green"
+                        : due.status === "Overdue"
+                          ? "red"
+                          : "orange",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {due.status}
+                </td>
+
+                <td>
+                  {due.status !== "Paid" ? (
+                    <button onClick={() => handlePay(due._id)}>Pay Now</button>
+                  ) : (
+                    "—"
+                  )}
+                </td>
+                <td>
+                  {due.status !== "Paid" ? (
+                    <button onClick={() => handleCash(due._id)}>Cash</button>
+                  ) : (
+                    "—"
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

@@ -1,51 +1,98 @@
-import { useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import {
+  Home,
+  Building2,
+  Users,
+  CreditCard,
+  Bell,
+  FileText,
+  User,
+  LogOut,
+} from "lucide-react";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
-  //manage state when logout without refreashing not go to login page that whay adding state
-  const [loggedOut, setloggedOut] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    setloggedOut(true);
+    localStorage.removeItem("role");
+    navigate("/login");
   };
 
-  if (loggedOut) {
-    return navigate("/login");
-  }
-  return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-white p-5">
-        <h1 className="text-2xl font-bold mb-8">Admin Panel</h1>
+  const linkClass = ({ isActive }) =>
+    `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition
+     ${
+       isActive
+         ? "bg-blue-600 text-white shadow"
+         : "text-gray-300 hover:bg-gray-800 hover:text-white"
+     }`;
 
-        <nav className="flex flex-col gap-4">
-          <Link to="/admin-dashboard" className="hover:text-yellow-400">
-            Dashboard
-          </Link>
-          <Link to="/admin-property" className="hover:text-yellow-400">
-            Property
-          </Link>
-          <Link to="/admin-tenant" className="hover:text-yellow-400">
-            Tenant
-          </Link>
-          <Link to="/admin-payment" className="hover:text-yellow-400">
-            Payment
-          </Link>
-          <Link className="hover:text-yellow-400">Notification</Link>{" "}
-          <Link className="hover:text-yellow-400">Report</Link>{" "}
-          <Link className="hover:text-yellow-400">Account</Link>
-          <Link className="hover:text-yellow-400" onClick={handleLogout}>
-            Logout
-          </Link>
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      {/* ================= Sidebar ================= */}
+      <aside className="w-64 bg-gray-900 text-white flex flex-col">
+        {/* Brand */}
+        <div className="px-6 py-5 border-b border-gray-800">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            🏠 <span>NestPay</span>
+          </h1>
+          <p className="text-xs text-gray-400 mt-1">Admin Panel</p>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-6 space-y-1">
+          <NavLink to="/admin-dashboard" className={linkClass}>
+            <Home size={18} /> Dashboard
+          </NavLink>
+
+          <NavLink to="/admin-property" className={linkClass}>
+            <Building2 size={18} /> Properties
+          </NavLink>
+
+          <NavLink to="/admin-tenant" className={linkClass}>
+            <Users size={18} /> Tenants
+          </NavLink>
+
+          <NavLink to="/admin-payment" className={linkClass}>
+            <CreditCard size={18} /> Payments
+          </NavLink>
+
+          <NavLink to="/" className={linkClass}>
+            <Bell size={18} /> Notifications
+          </NavLink>
+
+          <NavLink to="/" className={linkClass}>
+            <FileText size={18} /> Reports
+          </NavLink>
+
+          <NavLink to="/admin-account" className={linkClass}>
+            <User size={18} /> Account
+          </NavLink>
         </nav>
+
+        {/* Logout */}
+        <div className="px-3 py-4 border-t border-gray-800">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-red-400 hover:bg-red-600 hover:text-white transition"
+          >
+            <LogOut size={18} /> Logout
+          </button>
+        </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-6 bg-gray-100">
-        <Outlet />
-      </main>
+      {/* ================= Main Content ================= */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Bar */}
+        <header className="bg-white px-6 py-4 border-b flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-gray-700">Dashboard</h2>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 p-6">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };

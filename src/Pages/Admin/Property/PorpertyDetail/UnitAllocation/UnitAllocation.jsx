@@ -27,7 +27,7 @@ const UnitAllocation = () => {
         `http://localhost:5000/api/property/single-property/${propertyId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       setProperty(res.data.property);
@@ -45,7 +45,7 @@ const UnitAllocation = () => {
         `http://localhost:5000/api/property/all-units/${propertyId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       const vacant = res.data.units.filter((unit) => unit.status === "vacant");
@@ -65,11 +65,11 @@ const UnitAllocation = () => {
         "http://localhost:5000/api/tenant/all-tenant",
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       const freeActiveTenants = res.data.tenants.filter(
-        (tenant) => tenant.status === "Active" && tenant.unitId === null
+        (tenant) => tenant.status === "Active" && tenant.unitId === null,
       );
 
       setActiveTenants(freeActiveTenants);
@@ -92,7 +92,7 @@ const UnitAllocation = () => {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       setFormData({
         unitId: "",
@@ -121,7 +121,7 @@ const UnitAllocation = () => {
     const selectedTenantId = e.target.value;
 
     const selectedTenant = activeTenants.find(
-      (tenant) => tenant._id === selectedTenantId
+      (tenant) => tenant._id === selectedTenantId,
     );
 
     setFormData({

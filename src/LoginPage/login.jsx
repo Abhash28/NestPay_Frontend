@@ -13,14 +13,21 @@ function Login() {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/login",
-        formData
+        formData,
       );
       // Save token to localStorage
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.role);
+      //reset login
       setformData({ mobileNo: "", password: "" });
       setError("Login Successfully");
+      console.log(response);
       if (response.data.success) {
-        navigate("/admin-dashboard");
+        if (response.data.role === "admin") {
+          navigate("/admin-dashboard");
+        } else {
+          navigate("/tenant-home");
+        }
       }
     } catch (error) {
       console.log(error);

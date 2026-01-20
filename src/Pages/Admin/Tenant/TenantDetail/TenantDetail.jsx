@@ -5,52 +5,52 @@ import axios from "axios";
 const TenantDetail = () => {
   const { tenantId } = useParams();
 
-  // tenant data
-  const [tenant, setTenant] = useState(null);
-  //error hanlder
-  const [error, setError] = useState("");
-  //success message
-  const [success, setSuccess] = useState("");
+  // allocation data (SOURCE OF TRUTH)
+  const [allocation, setAllocation] = useState(null);
 
-  // modal state
+  // ui states
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
 
-  // form fields (backend-supported)
+  // form fields
   const [endDate, setEndDate] = useState("");
   const [deactivateReason, setDeactivateReason] = useState("");
   const [deactivateRemark, setDeactivateRemark] = useState("");
 
-  // fetch tenant
+  // ================= FETCH TENANT + ALLOCATION =================
   useEffect(() => {
     const fetchTenant = async () => {
       try {
         const token = localStorage.getItem("token");
+
         const res = await axios.get(
-          `http://localhost:5000/api/tenant/single-tenant/${tenantId}`,
+          `http://localhost:5000/api/allocation/tenant-info/${tenantId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
-        setTenant(res.data.tenant);
+
+        setAllocation(res.data.allocation);
       } catch (error) {
-        if (error.response) {
-          setError(error.response.data.message);
-        } else {
-          setError("Server not responding");
-        }
+        setError(error.response?.data?.message || "Server not responding");
+      } finally {
+        setFetching(false);
       }
     };
 
     fetchTenant();
   }, [tenantId]);
+  console.log(allocation);
 
-  // confirm deallocate (MATCHES BACKEND)
+  // ================= DEACTIVATE =================
   const confirmDeactivate = async () => {
     if (!endDate || !deactivateReason) {
-      setError("All Field Require");
+      setError("End date and reason are required");
       return;
     }
 
@@ -60,86 +60,128 @@ const TenantDetail = () => {
 
       await axios.post(
         `http://localhost:5000/api/allocation/deallocate/${tenantId}`,
-        {
-          endDate,
-          deactivateReason,
-          deactivateRemark,
-        },
+        { endDate, deactivateReason, deactivateRemark },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
-      setSuccess("Tenant deallocated successfully");
+      setSuccess("Tenant deactivated successfully");
 
-      // update UI instantly
-      setTenant((prev) => ({
+      // update UI locally
+      setAllocation((prev) => ({
         ...prev,
         status: "Inactive",
-        unitId: null,
+        endDate,
       }));
 
       setShowModal(false);
     } catch (error) {
-      if (error.response) {
-        setError(error.response.data.message);
-      } else {
-        setError("Server not responding");
-      }
+      setError(error.response?.data?.message || "Server not responding");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!tenant) return <p>Loading...</p>;
+  // ================= UI GUARDS =================
+  if (fetching) return <p>Loading tenant details...</p>;
+  if (!allocation) return <p>No allocation found for this tenant</p>;
+
+  // ================= SAFE DATA =================
+  const tenant = allocation.tenantId;
+  const unit = allocation.unitId;
+  const property = allocation.propertyId;
 
   return (
     <div style={{ padding: "20px" }}>
       <h2>Tenant Details</h2>
-      {/*Handle tenant detail  error*/}
-      {error && <p>{error}</p>}
-      {success && <p>{success}</p>}
 
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {success && <p style={{ color: "green" }}>{success}</p>}
+
+      {/* ================= TENANT ================= */}
       <p>
-        <b>Name:</b> {tenant.tenantName}
+        <b>Name:</b> {tenant?.tenantName}
       </p>
       <p>
-        <b>Mobile:</b> {tenant.tenantMobileNo}
+        <b>Mobile:</b> {tenant?.tenantMobileNo}
       </p>
       <p>
-        <b>Address:</b> {tenant.tenantAddress}
+        <b>Address:</b> {tenant?.tenantAddress}
       </p>
       <p>
         <b>Status:</b>{" "}
-        <span style={{ color: tenant.status === "Active" ? "green" : "red" }}>
-          {tenant.status}
+        <span style={{ color: tenant?.status === "Active" ? "green" : "red" }}>
+          {tenant?.status}
         </span>
       </p>
 
       <hr />
 
-      <h3>Unit Details</h3>
+      {/* ================= PROPERTY ================= */}
+      <h3>Property Details</h3>
       <p>
-        <b>Unit Number:</b> {tenant.unitId?.unitName}
+        <b>Property Name:</b> {property?.propertyName || "-"}
       </p>
       <p>
-        <b>Monthly Rent:</b> ₹{tenant.unitId?.monthlyRent || "-"}
-      </p>
-      <p>
-        <b>Unit Status:</b> {tenant.unitId?.status || "-"}
+        <b>Property Address:</b> {property?.propertyAddress || "-"}
       </p>
 
       <hr />
 
-      <h3>Created By</h3>
+      {/* ================= UNIT ================= */}
+      <h3>Unit Details</h3>
       <p>
-        <b>Name:</b> {tenant.createdBy?.name}
+        <b>Unit Name:</b> {unit?.unitName || "-"}
       </p>
       <p>
-        <b>Mobile:</b> {tenant.createdBy?.mobileNo}
+        <b>Monthly Rent:</b> ₹{unit?.monthlyRent || "-"}
+      </p>
+      <p>
+        <b>Unit Status:</b> {unit?.status || "-"}
       </p>
 
-      <button onClick={() => setShowModal(true)} disabled={!tenant.unitId}>
+      <hr />
+
+      {/* ================= ALLOCATION ================= */}
+      <h3>Allocation Details</h3>
+      <p>
+        <b>Billing Day:</b> {allocation.billingDay}
+      </p>
+      <p>
+        <b>Rent Amount:</b> ₹{allocation.rentAmount}
+      </p>
+      <p>
+        <b>Start Date:</b>{" "}
+        {allocation.startDate
+          ? new Date(allocation.startDate).toLocaleDateString()
+          : "-"}
+      </p>
+      {tenant.status === "Inactive" && (
+        <>
+          <p>
+            <b>End Date:</b>{" "}
+            {allocation.endDate
+              ? new Date(allocation.endDate).toLocaleDateString()
+              : "-"}
+          </p>
+
+          <p>
+            <b>Deactivate Reason:</b> {tenant.deactivateReason || "-"}
+          </p>
+
+          <p>
+            <b>Deactivate Remark:</b> {tenant.deactivateRemark || "-"}
+          </p>
+        </>
+      )}
+
+      <button
+        onClick={() => setShowModal(true)}
+        disabled={allocation.status !== "Active"}
+      >
         Deactivate
       </button>
 
@@ -148,66 +190,41 @@ const TenantDetail = () => {
         <div style={overlayStyle}>
           <div style={modalStyle}>
             <h3>Deactivate Tenant</h3>
-            {/*Hanlde model error */}
-            {error && <p>{error}</p>}
-            {/* Status (fixed) */}
-            <div style={{ marginBottom: "10px" }}>
-              <label>Status</label>
-              <div>
-                <input type="radio" checked disabled />
-                <span style={{ marginLeft: "8px" }}>Inactive</span>
-              </div>
-            </div>
 
-            {/* End Date */}
-            <div style={{ marginBottom: "10px" }}>
-              <label>End Date</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </div>
+            <label>End Date</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
 
-            {/* Reason (optional) */}
-            <div style={{ marginBottom: "10px" }}>
-              <label>Reason</label>
-              <select
-                value={deactivateReason}
-                onChange={(e) => setDeactivateReason(e.target.value)}
-              >
-                <option value="">Select reason</option>
-                <option value="Tenant Left">Tenant Left</option>
-                <option value="Non Payment">Non Payment</option>
-                <option value="Rule Violation">Rule Violation</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
+            <label>Reason</label>
+            <select
+              value={deactivateReason}
+              onChange={(e) => setDeactivateReason(e.target.value)}
+            >
+              <option value="">Select</option>
+              <option value="Tenant Left">Tenant Left</option>
+              <option value="Non Payment">Non Payment</option>
+              <option value="Rule Violation">Rule Violation</option>
+              <option value="Other">Other</option>
+            </select>
 
-            {/* Remark (optional) */}
-            <div style={{ marginBottom: "10px" }}>
-              <label>Remark</label>
-              <textarea
-                rows="3"
-                value={deactivateRemark}
-                onChange={(e) => setDeactivateRemark(e.target.value)}
-                placeholder="Optional remark"
-              />
-            </div>
+            <textarea
+              rows="3"
+              placeholder="Remark (optional)"
+              value={deactivateRemark}
+              onChange={(e) => setDeactivateRemark(e.target.value)}
+            />
 
-            <div style={{ textAlign: "right" }}>
+            <div style={{ marginTop: "10px", textAlign: "right" }}>
               <button onClick={() => setShowModal(false)}>Cancel</button>
-
               <button
                 onClick={confirmDeactivate}
                 disabled={loading}
-                style={{
-                  marginLeft: "10px",
-                  background: "red",
-                  color: "white",
-                }}
+                style={{ marginLeft: "10px", background: "red", color: "#fff" }}
               >
-                {loading ? "Processing..." : "Confirm Deactivate"}
+                {loading ? "Processing..." : "Confirm"}
               </button>
             </div>
           </div>
@@ -225,7 +242,6 @@ const overlayStyle = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  zIndex: 1000,
 };
 
 const modalStyle = {

@@ -12,8 +12,8 @@ function ForgetPass() {
   const handleFindUser = async () => {
     try {
       const response = await axios.post(
-        "https://nestpay-backend.onrender.com/api/auth/check-user",
-        { mobileNo: formData.mobileNo }
+        "http://localhost:5000/api/auth/check-user",
+        { mobileNo: formData.mobileNo },
       );
       if (response.data.success) {
         setFoundUser(true);
@@ -35,8 +35,8 @@ function ForgetPass() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "https://nestpay-backend.onrender.com/api/auth/change-pass",
-        { mobileNo: formData.mobileNo, password: formData.password }
+        "http://localhost:5000/api/auth/change-pass",
+        { mobileNo: formData.mobileNo, password: formData.password },
       );
       alert(response.data.message);
       setFormData({ mobileNo: "", password: "" });
@@ -58,12 +58,8 @@ function ForgetPass() {
       >
         {/* HEADER */}
         <div className="text-center space-y-1">
-          <h1 className="text-3xl font-bold text-indigo-600">
-            NestPay
-          </h1>
-          <p className="text-sm text-gray-500">
-            Reset Admin Password
-          </p>
+          <h1 className="text-3xl font-bold text-indigo-600">NestPay</h1>
+          <p className="text-sm text-gray-500">Reset Admin Password</p>
         </div>
 
         {/* ERROR MESSAGE */}
@@ -107,10 +103,7 @@ function ForgetPass() {
         {/* PASSWORD RESET SECTION */}
         {foundUser && (
           <div className="space-y-4">
-            <PasswordInputField
-              formData={formData}
-              setformData={setFormData}
-            />
+            <PasswordInputField formData={formData} setformData={setFormData} />
 
             <button
               type="submit"
