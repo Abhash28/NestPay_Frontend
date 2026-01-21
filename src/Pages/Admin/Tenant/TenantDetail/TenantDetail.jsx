@@ -71,6 +71,8 @@ const TenantDetail = () => {
         ...prev,
         status: "Inactive",
         endDate,
+        deactivateReason,
+        deactivateRemark,
       }));
 
       setShowModal(false);
@@ -82,7 +84,6 @@ const TenantDetail = () => {
   };
 
   /* ================= LOADER ================= */
-
   if (fetching) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -104,6 +105,7 @@ const TenantDetail = () => {
 
   return (
     <div className="p-4 max-w-3xl mx-auto space-y-4 pb-24">
+      {/* HEADER */}
       <div>
         <h1 className="text-xl font-black text-slate-900">Tenant Details</h1>
         <StatusBadge status={tenant.status} />
@@ -112,27 +114,31 @@ const TenantDetail = () => {
       {error && <Message type="error">{error}</Message>}
       {success && <Message type="success">{success}</Message>}
 
+      {/* TENANT */}
       <Card title="Tenant">
         <Row icon={<User />} value={tenant.tenantName} />
         <Row icon={<Phone />} value={tenant.tenantMobileNo} />
         <Row icon={<MapPin />} value={tenant.tenantAddress} />
       </Card>
 
+      {/* PROPERTY */}
       <Card title="Property">
         <Row icon={<Home />} value={property?.propertyName || "—"} />
         <Row icon={<MapPin />} value={property?.propertyAddress || "—"} />
       </Card>
 
+      {/* UNIT */}
       <Card title="Unit">
         <Row icon={<Home />} value={unit?.unitName || "—"} />
         <Row icon={<IndianRupee />} value={`₹${unit?.monthlyRent || "—"}`} />
         <Row value={`Status: ${unit?.status || "—"}`} />
       </Card>
 
+      {/* ALLOCATION */}
       <Card title="Allocation">
         <Row
           icon={<Calendar />}
-          value={`Start: ${
+          value={`Start Date: ${
             allocation.startDate
               ? new Date(allocation.startDate).toLocaleDateString()
               : "—"
@@ -142,34 +148,46 @@ const TenantDetail = () => {
         <Row value={`Rent: ₹${allocation.rentAmount}`} />
       </Card>
 
-      <button
-        onClick={() => setShowModal(true)}
-        disabled={tenant.status !== "Active"}
-        className="w-full bg-rose-600 disabled:bg-slate-300
-                   text-white font-black py-3 rounded-xl active:scale-[0.98]"
-      >
-        Deactivate Tenant
-      </button>
+      {/* 🔥 DEACTIVATION DETAILS (ONLY IF INACTIVE) */}
+      {tenant.status === "Inactive" && (
+        <Card title="Deactivation Details">
+          <Row
+            icon={<Calendar />}
+            value={`End Date: ${
+              allocation.endDate
+                ? new Date(allocation.endDate).toLocaleDateString()
+                : "—"
+            }`}
+          />
+          <Row
+            icon={<AlertTriangle />}
+            value={`Reason: ${allocation.deactivateReason || "—"}`}
+          />
+          {allocation.deactivateRemark && (
+            <Row value={`Remark: ${allocation.deactivateRemark}`} />
+          )}
+        </Card>
+      )}
 
-      {/* ================= MODAL (BOTTOM NAV SAFE) ================= */}
-      {showModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40
-                     flex items-end sm:items-center justify-center
-                     pb-20 sm:pb-0"
+      {/* ACTION */}
+      {tenant.status === "Active" && (
+        <button
+          onClick={() => setShowModal(true)}
+          className="w-full bg-rose-600 text-white font-black py-3 rounded-xl active:scale-[0.98]"
         >
-          <div
-            className="bg-white w-full sm:max-w-sm
-                       rounded-t-2xl sm:rounded-2xl
-                       flex flex-col max-h-[90vh] relative"
-          >
-            {/* HEADER */}
+          Deactivate Tenant
+        </button>
+      )}
+
+      {/* ================= MODAL ================= */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center pb-20 sm:pb-0">
+          <div className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl flex flex-col max-h-[90vh]">
             <div className="px-4 py-3 border-b flex items-center gap-2 text-rose-600">
               <AlertTriangle className="w-5 h-5" />
               <h3 className="text-lg font-black">Deactivate Tenant</h3>
             </div>
 
-            {/* BODY */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               <Input
                 type="date"
@@ -195,12 +213,10 @@ const TenantDetail = () => {
               />
             </div>
 
-            {/* ✅ ALWAYS VISIBLE ACTIONS */}
-            <div className="sticky bottom-0 bg-white border-t px-4 py-3 pb-6 flex gap-2">
+            <div className="border-t px-4 py-4 flex gap-2">
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 border border-slate-300
-                           rounded-xl py-3 text-sm font-bold"
+                className="flex-1 border rounded-xl py-3 font-bold"
               >
                 Cancel
               </button>
@@ -208,12 +224,10 @@ const TenantDetail = () => {
               <button
                 onClick={confirmDeactivate}
                 disabled={loading}
-                className="flex-1 bg-rose-600 text-white
-                           rounded-xl py-3 text-sm font-black
-                           flex items-center justify-center gap-2"
+                className="flex-1 bg-rose-600 text-white rounded-xl py-3 font-black flex justify-center gap-2"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {loading ? "Processing…" : "Confirm"}
+                Confirm
               </button>
             </div>
           </div>
@@ -223,7 +237,7 @@ const TenantDetail = () => {
   );
 };
 
-/* ================= SMALL UI ================= */
+/* ================= UI HELPERS ================= */
 
 const Card = ({ title, children }) => (
   <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2">
@@ -266,16 +280,14 @@ const Message = ({ type, children }) => (
 const Input = (props) => (
   <input
     {...props}
-    className="w-full px-3 py-3 bg-slate-50 border border-slate-200
-               rounded-xl font-bold text-sm outline-none"
+    className="w-full px-3 py-3 bg-slate-50 border rounded-xl font-bold text-sm"
   />
 );
 
 const Select = (props) => (
   <select
     {...props}
-    className="w-full px-3 py-3 bg-slate-50 border border-slate-200
-               rounded-xl font-bold text-sm outline-none"
+    className="w-full px-3 py-3 bg-slate-50 border rounded-xl font-bold text-sm"
   />
 );
 
@@ -283,8 +295,7 @@ const Textarea = (props) => (
   <textarea
     {...props}
     rows={3}
-    className="w-full px-3 py-3 bg-slate-50 border border-slate-200
-               rounded-xl font-bold text-sm outline-none"
+    className="w-full px-3 py-3 bg-slate-50 border rounded-xl font-bold text-sm"
   />
 );
 
