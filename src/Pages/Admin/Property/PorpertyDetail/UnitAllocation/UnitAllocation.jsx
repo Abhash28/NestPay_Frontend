@@ -31,7 +31,7 @@ const UnitAllocation = () => {
     const fetchProperty = async () => {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `https://nest-pay.in/api/property/single-property/${propertyId}`,
+        `https://nestpay-backend.onrender.com/api/property/single-property/${propertyId}`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setProperty(res.data.property);
@@ -44,7 +44,7 @@ const UnitAllocation = () => {
     const fetchVacantUnits = async () => {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `https://nest-pay.in/api/property/all-units/${propertyId}`,
+        `https://nestpay-backend.onrender.com/api/property/all-units/${propertyId}`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setVacantUnits(res.data.units.filter((unit) => unit.status === "vacant"));
@@ -56,9 +56,12 @@ const UnitAllocation = () => {
   useEffect(() => {
     const fetchActiveTenants = async () => {
       const token = localStorage.getItem("token");
-      const res = await axios.get("https://nest-pay.in/api/tenant/all-tenant", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "https://nestpay-backend.onrender.com/api/tenant/all-tenant",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
       setActiveTenants(
         res.data.tenants.filter(
@@ -75,7 +78,7 @@ const UnitAllocation = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "https://nest-pay.in/api/allocation/allocate",
+        "https://nestpay-backend.onrender.com/api/allocation/allocate",
         {
           propertyId,
           unitId: formData.unitId,

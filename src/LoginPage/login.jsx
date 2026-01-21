@@ -23,7 +23,7 @@ function Login() {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "https://nest-pay.in/api/auth/login",
+        "https://nestpay-backend.onrender.com/api/auth/login",
         formData,
       );
 

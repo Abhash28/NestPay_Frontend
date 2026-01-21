@@ -31,12 +31,15 @@ const PaymentHistory = () => {
       }
       if (status) params.status = status;
 
-      const res = await axios.get("https://nest-pay.in/api/payment/history", {
-        params,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      const res = await axios.get(
+        "https://nestpay-backend.onrender.com/api/payment/history",
+        {
+          params,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         },
-      });
+      );
 
       setRentHistory(res.data.rentDue || []);
     } catch (err) {

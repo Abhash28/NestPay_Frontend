@@ -22,7 +22,7 @@ const UnitDetail = () => {
       setPageLoading(true);
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `https://nest-pay.in/api/property/all-units/${propertyId}`,
+        `https://nestpay-backend.onrender.com/api/property/all-units/${propertyId}`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setUnits(res.data.units || []);
@@ -45,7 +45,7 @@ const UnitDetail = () => {
 
     try {
       await axios.post(
-        "https://nest-pay.in/api/unit/create-unit",
+        "https://nestpay-backend.onrender.com/api/unit/create-unit",
         { propertyId, unitName, monthlyRent },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -70,7 +70,7 @@ const UnitDetail = () => {
   const handleUpdateUnit = async () => {
     try {
       await axios.put(
-        "https://nest-pay.in/api/unit/update-unit",
+        "https://nestpay-backend.onrender.com/api/unit/update-unit",
         { unitId: selectedUnit._id, unitName, monthlyRent },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
