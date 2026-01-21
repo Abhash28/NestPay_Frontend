@@ -110,16 +110,8 @@ const TenantDashboard = () => {
   // ================= LOADING =================
   if (loading || !tenant) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-50">
-        <div className="flex flex-col items-center gap-3">
-          {/* Spinner */}
-          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-
-          {/* Text */}
-          <p className="text-slate-600 font-semibold text-sm">
-            Loading your home…
-          </p>
-        </div>
+      <div className="text-center text-indigo-600 font-semibold">
+        Loading your home…
       </div>
     );
   }
