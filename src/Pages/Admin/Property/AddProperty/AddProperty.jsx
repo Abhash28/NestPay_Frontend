@@ -33,7 +33,7 @@ const AddProperty = () => {
       const token = localStorage.getItem("token");
 
       await axios.post(
-        "https://nestpay-backend.onrender.com/api/property/add-property",
+        "https://nest-pay.in/api/property/add-property",
         formData,
         {
           headers: {

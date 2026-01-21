@@ -24,24 +24,15 @@ const TenantDashboard = () => {
     const fetchAll = async () => {
       try {
         const [tenantRes, rentRes, payRes] = await Promise.all([
-          axios.get(
-            "https://nestpay-backend.onrender.com/api/allocation/tenant/home",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
-          ),
-          axios.get(
-            "https://nestpay-backend.onrender.com/api/rentdue/tenant/rent",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
-          ),
-          axios.get(
-            "https://nestpay-backend.onrender.com/api/payment/recent/tenant/paid",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
-          ),
+          axios.get("https://nest-pay.in/api/allocation/tenant/home", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("https://nest-pay.in/api/rentdue/tenant/rent", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("https://nest-pay.in/api/payment/recent/tenant/paid", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
         setTenant(tenantRes.data.tenantInfo);
@@ -78,7 +69,7 @@ const TenantDashboard = () => {
         try {
           const token = localStorage.getItem("token");
           await axios.post(
-            "https://nestpay-backend.onrender.com/api/payment/verifyPayment",
+            "https://nest-pay.in/api/payment/verifyPayment",
             response,
             { headers: { Authorization: `Bearer ${token}` } },
           );
@@ -97,7 +88,7 @@ const TenantDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        "https://nestpay-backend.onrender.com/api/payment/create-order",
+        "https://nest-pay.in/api/payment/create-order",
         { rentDueId },
         { headers: { Authorization: `Bearer ${token}` } },
       );

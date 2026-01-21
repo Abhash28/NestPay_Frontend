@@ -22,7 +22,7 @@ const Tenant = () => {
         setLoading(true);
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          "https://nestpay-backend.onrender.com/api/tenant/all-tenant",
+          "https://nest-pay.in/api/tenant/all-tenant",
           { headers: { Authorization: `Bearer ${token}` } },
         );
         setTenants(res.data.tenants || []);
@@ -42,7 +42,7 @@ const Tenant = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        "https://nestpay-backend.onrender.com/api/tenant/update-tenant",
+        "https://nest-pay.in/api/tenant/update-tenant",
         { tenant: selectedTenant },
         { headers: { Authorization: `Bearer ${token}` } },
       );

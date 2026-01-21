@@ -11,14 +11,11 @@ const ProfileTenant = () => {
   useEffect(() => {
     const profileData = async () => {
       try {
-        const res = await axios.get(
-          "https://nestpay-backend.onrender.com/api/tenant/profile",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
+        const res = await axios.get("https://nest-pay.in/api/tenant/profile", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        );
+        });
         setProfile(res.data.profile);
       } catch (err) {
         console.error(err);

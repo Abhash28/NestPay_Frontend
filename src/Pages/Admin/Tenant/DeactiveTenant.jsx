@@ -17,7 +17,7 @@ const InactiveTenant = () => {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          "https://nestpay-backend.onrender.com/api/tenant/all-tenant",
+          "https://nest-pay.in/api/tenant/all-tenant",
           {
             headers: { Authorization: `Bearer ${token}` },
           },

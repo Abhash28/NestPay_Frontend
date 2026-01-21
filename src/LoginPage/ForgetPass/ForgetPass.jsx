@@ -27,7 +27,7 @@ function ForgetPass() {
     setError("");
     try {
       const response = await axios.post(
-        "https://nestpay-backend.onrender.com/api/auth/check-user",
+        "https://nest-pay.in/api/auth/check-user",
         { mobileNo: formData.mobileNo },
       );
       if (response.data.success) {
@@ -46,13 +46,10 @@ function ForgetPass() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await axios.post(
-        "https://nestpay-backend.onrender.com/api/auth/change-pass",
-        {
-          mobileNo: formData.mobileNo,
-          password: formData.password,
-        },
-      );
+      await axios.post("https://nest-pay.in/api/auth/change-pass", {
+        mobileNo: formData.mobileNo,
+        password: formData.password,
+      });
       setFormData({ mobileNo: "", password: "" });
       navigate("/login");
     } catch (err) {

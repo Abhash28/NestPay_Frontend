@@ -30,10 +30,9 @@ const Payment = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
-        const res = await axios.get(
-          "https://nestpay-backend.onrender.com/api/rentdue/alldue",
-          { headers: { Authorization: `Bearer ${token}` } },
-        );
+        const res = await axios.get("https://nest-pay.in/api/rentdue/alldue", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setRentDues(res.data.rentDues || []);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to load rent dues");
@@ -62,7 +61,7 @@ const Payment = () => {
         try {
           const token = localStorage.getItem("token");
           await axios.post(
-            "https://nestpay-backend.onrender.com/api/payment/verifyPayment",
+            "https://nest-pay.in/api/payment/verifyPayment",
             response,
             { headers: { Authorization: `Bearer ${token}` } },
           );
@@ -80,7 +79,7 @@ const Payment = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        "https://nestpay-backend.onrender.com/api/payment/create-order",
+        "https://nest-pay.in/api/payment/create-order",
         { rentDueId },
         { headers: { Authorization: `Bearer ${token}` } },
       );
@@ -96,7 +95,7 @@ const Payment = () => {
       setCashLoading(true);
       const token = localStorage.getItem("token");
       await axios.post(
-        "https://nestpay-backend.onrender.com/api/payment/cash",
+        "https://nest-pay.in/api/payment/cash",
         { rentDueId: selectedDue._id },
         { headers: { Authorization: `Bearer ${token}` } },
       );

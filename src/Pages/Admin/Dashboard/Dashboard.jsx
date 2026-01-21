@@ -24,22 +24,16 @@ const AdminDashboard = () => {
         setPageLoading(true);
 
         const [statsRes, paymentsRes] = await Promise.all([
-          axios.get(
-            "https://nestpay-backend.onrender.com/api/property/dashboard-stats",
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
+          axios.get("https://nest-pay.in/api/property/dashboard-stats", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          ),
-          axios.get(
-            "https://nestpay-backend.onrender.com/api/payment/recent-paid",
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
+          }),
+          axios.get("https://nest-pay.in/api/payment/recent-paid", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          ),
+          }),
         ]);
 
         setStats(statsRes.data.stats);

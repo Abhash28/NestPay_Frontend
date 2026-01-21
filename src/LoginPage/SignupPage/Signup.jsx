@@ -28,10 +28,7 @@ function Signup() {
     setIsLoading(true);
     seterror("");
     try {
-      await axios.post(
-        "https://nestpay-backend.onrender.com/api/auth/signup",
-        formData,
-      );
+      await axios.post("https://nest-pay.in/api/auth/signup", formData);
       setformData({ name: "", mobileNo: "", password: "" });
       navigate("/login");
     } catch (error) {
