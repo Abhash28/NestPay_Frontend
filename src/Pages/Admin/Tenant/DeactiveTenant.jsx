@@ -39,14 +39,17 @@ const InactiveTenant = () => {
     .filter((t) => t.tenantName?.toLowerCase().includes(search.toLowerCase()));
 
   // ================= LOADING =================
+
   if (loading) {
     return (
-      <div className="p-4 text-slate-500 text-sm">
-        Loading inactive tenants…
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="flex items-center gap-3 text-slate-600 font-semibold">
+          <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          Loading inactive tenants…
+        </div>
       </div>
     );
   }
-
   return (
     <div className="p-4 max-w-3xl mx-auto space-y-4">
       {/* ===== HEADER ===== */}
