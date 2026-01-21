@@ -164,7 +164,7 @@ const TenantDetail = () => {
             value={`Reason: ${allocation.deactivateReason || "—"}`}
           />
           {allocation.deactivateRemark && (
-            <Row value={`Remark: ${allocation.deactivateRemark}`} />
+            <Row value={`Remark: ${allocation.deactivateRemark || "-"}`} />
           )}
         </Card>
       )}
