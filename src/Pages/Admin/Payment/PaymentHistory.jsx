@@ -1,16 +1,29 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Calendar, User, Home, IndianRupee, Clock } from "lucide-react";
+import {
+  Calendar,
+  User,
+  Home,
+  IndianRupee,
+  Clock,
+  Loader2,
+} from "lucide-react";
 import formatMonthYear from "../../../../utils/convertMonth";
 
 const PaymentHistory = () => {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [status, setStatus] = useState("");
+
   const [rentHistory, setRentHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const fetchPaymentHistory = async () => {
     try {
+      setLoading(true);
+      setError("");
+
       const params = {};
       if (month && year) {
         params.month = month;
@@ -27,9 +40,12 @@ const PaymentHistory = () => {
           },
         },
       );
+
       setRentHistory(res.data.rentDue || []);
     } catch (err) {
-      console.error(err);
+      setError(err.response?.data?.message || "Failed to load payment history");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,8 +53,18 @@ const PaymentHistory = () => {
     fetchPaymentHistory();
   }, [month, year, status]);
 
+  /* ===== PAGE LOADER ===== */
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh] gap-2 text-slate-600 font-semibold">
+        <Loader2 className="w-5 h-5 animate-spin" />
+        Loading payment history…
+      </div>
+    );
+  }
+
   return (
-    <div className="p-4 max-w-3xl mx-auto space-y-5">
+    <div className="p-4 max-w-3xl mx-auto space-y-5 pb-24">
       {/* ===== HEADER ===== */}
       <div>
         <h1 className="text-xl font-black text-slate-900">Payment History</h1>
@@ -74,9 +100,18 @@ const PaymentHistory = () => {
         </Select>
       </div>
 
+      {error && (
+        <div className="bg-rose-50 text-rose-600 text-sm font-bold p-3 rounded-xl">
+          {error}
+        </div>
+      )}
+
       {/* ===== HISTORY LIST ===== */}
       {rentHistory.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 text-center text-slate-500">
+        <div
+          className="bg-white border border-slate-200 rounded-xl
+                        p-6 text-center text-slate-500"
+        >
           No payment records found
         </div>
       ) : (
@@ -84,21 +119,30 @@ const PaymentHistory = () => {
           {rentHistory.map((rent) => (
             <div
               key={rent._id}
-              className="bg-white border border-slate-200 rounded-xl p-3 space-y-2"
+              className="bg-white border border-slate-200
+                         rounded-xl p-3 space-y-2"
             >
               {/* Row 1 */}
               <div className="flex items-center justify-between">
-                <span className="font-black text-slate-900 text-sm">
-                  ₹{rent.rentAmount}
+                <span className="font-black text-slate-900 text-sm flex items-center gap-1">
+                  <IndianRupee className="w-4 h-4" />
+                  {rent.rentAmount}
                 </span>
                 <StatusBadge status={rent.status} />
               </div>
 
               {/* Row 2 */}
-              <Row icon={<User />} text={rent.tenantId?.tenantName} />
               <Row
-                icon={<Home />}
-                text={`${rent.propertyId?.propertyName} · ${rent.unitId?.unitName}`}
+                icon={<User className="w-3.5 h-3.5" />}
+                text={rent.tenantId?.tenantName || "—"}
+              />
+              <Row
+                icon={<Home className="w-3.5 h-3.5" />}
+                text={
+                  rent.propertyId?.propertyName
+                    ? `${rent.propertyId.propertyName} · ${rent.unitId?.unitName}`
+                    : "—"
+                }
               />
 
               {/* Row 3 */}
@@ -129,7 +173,8 @@ const Select = ({ value, onChange, placeholder, children }) => (
   <select
     value={value}
     onChange={(e) => onChange(e.target.value)}
-    className="px-3 py-2 rounded-lg bg-slate-50 border border-slate-200
+    className="px-3 py-2 rounded-lg bg-slate-50
+               border border-slate-200
                text-xs font-bold text-slate-700 outline-none"
   >
     <option value="">{placeholder}</option>

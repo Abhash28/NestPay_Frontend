@@ -29,7 +29,7 @@ function Signup() {
     seterror("");
     try {
       await axios.post(
-        "https://nestpay-backend.onrender.comapi/auth/signup",
+        "https://nestpay-backend.onrender.com/api/auth/signup",
         formData,
       );
       setformData({ name: "", mobileNo: "", password: "" });

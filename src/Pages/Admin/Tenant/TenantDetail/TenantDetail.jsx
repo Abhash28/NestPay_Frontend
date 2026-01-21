@@ -9,6 +9,7 @@ import {
   IndianRupee,
   Calendar,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 
 const TenantDetail = () => {
@@ -21,15 +22,13 @@ const TenantDetail = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // modal
   const [showModal, setShowModal] = useState(false);
 
-  // deactivate form
   const [endDate, setEndDate] = useState("");
   const [deactivateReason, setDeactivateReason] = useState("");
   const [deactivateRemark, setDeactivateRemark] = useState("");
 
-  // ================= FETCH =================
+  /* ================= FETCH ================= */
   useEffect(() => {
     const fetchTenant = async () => {
       try {
@@ -49,7 +48,7 @@ const TenantDetail = () => {
     fetchTenant();
   }, [tenantId]);
 
-  // ================= DEACTIVATE =================
+  /* ================= DEACTIVATE ================= */
   const confirmDeactivate = async () => {
     if (!endDate || !deactivateReason) {
       setError("End date and reason are required");
@@ -82,58 +81,51 @@ const TenantDetail = () => {
     }
   };
 
-  // ================= UI GUARDS =================
-  if (fetching)
-    return <div className="p-4 text-slate-500">Loading tenant details…</div>;
+  /* ================= LOADER ================= */
+  if (fetching) {
+    return (
+      <div className="flex items-center justify-center h-[60vh] gap-2 text-slate-600 font-semibold">
+        <Loader2 className="w-5 h-5 animate-spin" />
+        Loading tenant details…
+      </div>
+    );
+  }
 
-  if (!allocation)
-    return <div className="p-4 text-rose-600">No tenant found</div>;
+  if (!allocation) {
+    return <div className="p-4 text-rose-600 font-bold">No tenant found</div>;
+  }
 
   const tenant = allocation.tenantId;
   const unit = allocation.unitId;
   const property = allocation.propertyId;
 
   return (
-    <div className="p-4 max-w-3xl mx-auto space-y-4">
-      {/* ===== HEADER ===== */}
+    <div className="p-4 max-w-3xl mx-auto space-y-4 pb-24">
       <div>
         <h1 className="text-xl font-black text-slate-900">Tenant Details</h1>
         <StatusBadge status={tenant.status} />
       </div>
 
-      {error && (
-        <div className="bg-rose-50 text-rose-600 text-sm font-semibold p-3 rounded-lg">
-          {error}
-        </div>
-      )}
+      {error && <Message type="error">{error}</Message>}
+      {success && <Message type="success">{success}</Message>}
 
-      {success && (
-        <div className="bg-emerald-50 text-emerald-600 text-sm font-semibold p-3 rounded-lg">
-          {success}
-        </div>
-      )}
-
-      {/* ===== TENANT ===== */}
-      <Card title="Tenant Information">
+      <Card title="Tenant">
         <Row icon={<User />} value={tenant.tenantName} />
         <Row icon={<Phone />} value={tenant.tenantMobileNo} />
         <Row icon={<MapPin />} value={tenant.tenantAddress} />
       </Card>
 
-      {/* ===== PROPERTY ===== */}
       <Card title="Property">
         <Row icon={<Home />} value={property?.propertyName || "—"} />
         <Row icon={<MapPin />} value={property?.propertyAddress || "—"} />
       </Card>
 
-      {/* ===== UNIT ===== */}
       <Card title="Unit">
         <Row icon={<Home />} value={unit?.unitName || "—"} />
         <Row icon={<IndianRupee />} value={`₹${unit?.monthlyRent || "—"}`} />
         <Row value={`Status: ${unit?.status || "—"}`} />
       </Card>
 
-      {/* ===== ALLOCATION ===== */}
       <Card title="Allocation">
         <Row
           icon={<Calendar />}
@@ -145,82 +137,79 @@ const TenantDetail = () => {
         />
         <Row value={`Billing Day: ${allocation.billingDay}`} />
         <Row value={`Rent: ₹${allocation.rentAmount}`} />
-
-        {tenant.status === "Inactive" && (
-          <>
-            <Row
-              icon={<Calendar />}
-              value={`End: ${
-                allocation.endDate
-                  ? new Date(allocation.endDate).toLocaleDateString()
-                  : "—"
-              }`}
-            />
-            <Row value={`Reason: ${tenant.deactivateReason || "—"}`} />
-            <Row value={`Remark: ${tenant.deactivateRemark || "—"}`} />
-          </>
-        )}
       </Card>
 
-      {/* ===== ACTION ===== */}
       <button
         onClick={() => setShowModal(true)}
         disabled={tenant.status !== "Active"}
         className="w-full bg-rose-600 disabled:bg-slate-300
-                   text-white font-black py-3 rounded-xl
-                   transition-all active:scale-[0.98]"
+                   text-white font-black py-3 rounded-xl active:scale-[0.98]"
       >
         Deactivate Tenant
       </button>
 
-      {/* ===== MODAL ===== */}
+      {/* ================= MODAL (BOTTOM NAV SAFE) ================= */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center">
-          <div className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-4 space-y-3">
-            <h3 className="text-lg font-black flex items-center gap-2 text-rose-600">
+        <div
+          className="fixed inset-0 z-50 bg-black/40
+                     flex items-end sm:items-center justify-center
+                     pb-20 sm:pb-0"
+        >
+          <div
+            className="bg-white w-full sm:max-w-sm
+                       rounded-t-2xl sm:rounded-2xl
+                       flex flex-col max-h-[90vh] relative"
+          >
+            {/* HEADER */}
+            <div className="px-4 py-3 border-b flex items-center gap-2 text-rose-600">
               <AlertTriangle className="w-5 h-5" />
-              Deactivate Tenant
-            </h3>
+              <h3 className="text-lg font-black">Deactivate Tenant</h3>
+            </div>
 
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="input"
-            />
+            {/* BODY */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
 
-            <select
-              value={deactivateReason}
-              onChange={(e) => setDeactivateReason(e.target.value)}
-              className="input"
-            >
-              <option value="">Select reason</option>
-              <option value="Tenant Left">Tenant Left</option>
-              <option value="Non Payment">Non Payment</option>
-              <option value="Rule Violation">Rule Violation</option>
-              <option value="Other">Other</option>
-            </select>
+              <Select
+                value={deactivateReason}
+                onChange={(e) => setDeactivateReason(e.target.value)}
+              >
+                <option value="">Select reason</option>
+                <option value="Tenant Left">Tenant Left</option>
+                <option value="Non Payment">Non Payment</option>
+                <option value="Rule Violation">Rule Violation</option>
+                <option value="Other">Other</option>
+              </Select>
 
-            <textarea
-              rows="3"
-              placeholder="Remark (optional)"
-              value={deactivateRemark}
-              onChange={(e) => setDeactivateRemark(e.target.value)}
-              className="input"
-            />
+              <Textarea
+                placeholder="Remark (optional)"
+                value={deactivateRemark}
+                onChange={(e) => setDeactivateRemark(e.target.value)}
+              />
+            </div>
 
-            <div className="flex gap-2 pt-2">
+            {/* ✅ ALWAYS VISIBLE ACTIONS */}
+            <div className="sticky bottom-0 bg-white border-t px-4 py-3 pb-6 flex gap-2">
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 border border-slate-300 rounded-lg py-2 text-sm font-bold"
+                className="flex-1 border border-slate-300
+                           rounded-xl py-3 text-sm font-bold"
               >
                 Cancel
               </button>
+
               <button
                 onClick={confirmDeactivate}
                 disabled={loading}
-                className="flex-1 bg-rose-600 text-white rounded-lg py-2 text-sm font-black"
+                className="flex-1 bg-rose-600 text-white
+                           rounded-xl py-3 text-sm font-black
+                           flex items-center justify-center gap-2"
               >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                 {loading ? "Processing…" : "Confirm"}
               </button>
             </div>
@@ -234,10 +223,8 @@ const TenantDetail = () => {
 /* ================= SMALL UI ================= */
 
 const Card = ({ title, children }) => (
-  <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-2">
-    <p className="text-xs font-black text-slate-500 uppercase tracking-widest">
-      {title}
-    </p>
+  <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2">
+    <p className="text-xs font-black text-slate-400 uppercase">{title}</p>
     {children}
   </div>
 );
@@ -259,6 +246,43 @@ const StatusBadge = ({ status }) => (
   >
     {status}
   </span>
+);
+
+const Message = ({ type, children }) => (
+  <div
+    className={`text-sm font-bold p-3 rounded-xl ${
+      type === "error"
+        ? "bg-rose-50 text-rose-600"
+        : "bg-emerald-50 text-emerald-600"
+    }`}
+  >
+    {children}
+  </div>
+);
+
+const Input = (props) => (
+  <input
+    {...props}
+    className="w-full px-3 py-3 bg-slate-50 border border-slate-200
+               rounded-xl font-bold text-sm outline-none"
+  />
+);
+
+const Select = (props) => (
+  <select
+    {...props}
+    className="w-full px-3 py-3 bg-slate-50 border border-slate-200
+               rounded-xl font-bold text-sm outline-none"
+  />
+);
+
+const Textarea = (props) => (
+  <textarea
+    {...props}
+    rows={3}
+    className="w-full px-3 py-3 bg-slate-50 border border-slate-200
+               rounded-xl font-bold text-sm outline-none"
+  />
 );
 
 export default TenantDetail;

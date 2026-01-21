@@ -4,19 +4,16 @@ import { User, Phone, MapPin, Hash, ShieldCheck, Loader2 } from "lucide-react";
 
 const ProfileAdmin = () => {
   const [profile, setProfile] = useState(null);
-  const [form, setForm] = useState({
-    address: "",
-    pincode: "",
-  });
+  const [form, setForm] = useState({ address: "", pincode: "" });
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
 
-  // ================= FETCH PROFILE =================
+  /* ================= FETCH PROFILE ================= */
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await axios.get(
-          "https://nestpay-backend.onrender.comapi/admin/profile",
+          "https://nestpay-backend.onrender.com/api/admin/profile",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -39,13 +36,12 @@ const ProfileAdmin = () => {
     fetchProfile();
   }, []);
 
-  // ================= UPDATE PROFILE =================
+  /* ================= UPDATE PROFILE ================= */
   const handleUpdate = async () => {
     try {
       setLoading(true);
-
       const res = await axios.put(
-        "https://nestpay-backend.onrender.comapi/admin/profile-update",
+        "https://nestpay-backend.onrender.com/api/admin/profile-update",
         form,
         {
           headers: {
@@ -58,102 +54,104 @@ const ProfileAdmin = () => {
       alert("Profile updated successfully ✅");
     } catch (error) {
       console.error("Profile update error:", error);
+      alert("Failed to update profile");
     } finally {
       setLoading(false);
     }
   };
 
-  // ================= UI STATES =================
-  if (pageLoading)
+  /* ================= PAGE LOADER ================= */
+  if (pageLoading) {
     return (
-      <div className="p-6 text-slate-500 font-medium">
-        Loading admin profile...
+      <div className="flex items-center justify-center h-[60vh] gap-3 text-slate-600 font-semibold">
+        <Loader2 className="w-6 h-6 animate-spin" />
+        Loading admin profile…
       </div>
     );
+  }
 
-  if (!profile)
-    return <div className="p-6 text-rose-600 font-bold">Profile not found</div>;
+  if (!profile) {
+    return (
+      <div className="flex items-center justify-center h-[60vh] text-rose-600 font-bold">
+        Profile not found
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 sm:p-6 max-w-3xl space-y-8">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-8 pb-24">
       {/* ===== HEADER ===== */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
           Admin Profile
         </h1>
-        <p className="text-slate-500 font-medium mt-1">
+        <p className="text-slate-500 mt-1">
           Manage your personal and contact details
         </p>
       </div>
 
-      {/* ===== READ ONLY INFO ===== */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
-        <h2 className="text-sm font-black text-slate-700 uppercase tracking-widest">
-          Account Info
-        </h2>
-
+      {/* ===== ACCOUNT INFO ===== */}
+      <Card title="Account Information">
         <ReadOnlyField
-          icon={<ShieldCheck />}
+          icon={<ShieldCheck className="w-5 h-5" />}
           label="Role"
           value={profile.adminId.role}
         />
 
         <ReadOnlyField
-          icon={<User />}
+          icon={<User className="w-5 h-5" />}
           label="Name"
           value={profile.adminId.name}
         />
 
         <ReadOnlyField
-          icon={<Phone />}
+          icon={<Phone className="w-5 h-5" />}
           label="Mobile Number"
           value={profile.adminId.mobileNo}
         />
-      </div>
+      </Card>
 
-      {/* ===== EDITABLE INFO ===== */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-5">
-        <h2 className="text-sm font-black text-slate-700 uppercase tracking-widest">
-          Contact Details
-        </h2>
-
+      {/* ===== CONTACT INFO ===== */}
+      <Card title="Contact Details">
         <InputField
-          icon={<MapPin />}
+          icon={<MapPin className="w-5 h-5" />}
           label="Address"
-          placeholder="Enter address"
+          placeholder="Enter your address"
           value={form.address}
           onChange={(e) => setForm({ ...form, address: e.target.value })}
         />
 
         <InputField
-          icon={<Hash />}
+          icon={<Hash className="w-5 h-5" />}
           label="Pincode"
           placeholder="Enter pincode"
           value={form.pincode}
           onChange={(e) => setForm({ ...form, pincode: e.target.value })}
         />
-      </div>
+      </Card>
 
-      {/* ===== META INFO ===== */}
-      <div className="text-sm text-slate-500 font-medium">
+      {/* ===== META ===== */}
+      <p className="text-xs text-slate-500">
         Profile created on{" "}
         <span className="font-bold text-slate-700">
           {new Date(profile.createdAt).toLocaleDateString()}
         </span>
-      </div>
+      </p>
 
       {/* ===== ACTION ===== */}
       <button
         onClick={handleUpdate}
         disabled={loading}
-        className="w-full sm:w-auto bg-[#020617] hover:bg-indigo-700 disabled:bg-slate-300
-                   text-white font-black px-8 py-4 rounded-2xl shadow-lg
-                   transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+        className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800
+                   disabled:bg-slate-300 text-white font-black
+                   px-8 py-4 rounded-2xl shadow-lg
+                   transition active:scale-[0.98]
+                   flex items-center justify-center gap-3"
       >
         {loading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            Updating...
+            Updating…
           </>
         ) : (
           "Update Profile"
@@ -163,25 +161,37 @@ const ProfileAdmin = () => {
   );
 };
 
-/* ================= REUSABLE UI ================= */
+/* ================= UI COMPONENTS ================= */
+
+const Card = ({ title, children }) => (
+  <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-5">
+    <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest">
+      {title}
+    </h2>
+    {children}
+  </div>
+);
 
 const ReadOnlyField = ({ icon, label, value }) => (
   <div className="flex items-center gap-4">
-    <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
+    <div
+      className="w-11 h-11 rounded-xl bg-slate-100
+                    flex items-center justify-center text-slate-600"
+    >
       {icon}
     </div>
     <div>
-      <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
         {label}
       </p>
-      <p className="font-black text-slate-900">{value}</p>
+      <p className="font-black text-slate-900">{value || "—"}</p>
     </div>
   </div>
 );
 
 const InputField = ({ icon, label, ...props }) => (
   <div className="space-y-2">
-    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[2px] ml-1">
+    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
       {label}
     </label>
     <div className="relative">
@@ -190,11 +200,13 @@ const InputField = ({ icon, label, ...props }) => (
       </div>
       <input
         {...props}
-        className="
-          w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl
-          focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/5
-          outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300
-        "
+        className="w-full pl-12 pr-4 py-4 bg-slate-50
+                   border border-slate-200 rounded-2xl
+                   focus:bg-white focus:border-indigo-600
+                   focus:ring-4 focus:ring-indigo-500/10
+                   outline-none transition
+                   font-bold text-slate-900
+                   placeholder:text-slate-300"
       />
     </div>
   </div>
