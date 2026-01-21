@@ -110,8 +110,8 @@ const TenantDashboard = () => {
   // ================= LOADING =================
   if (loading || !tenant) {
     return (
-      <div className="text-center text-indigo-600 font-semibold">
-        Loading your home…
+      <div className="text-center text-slate-500 font-semibold">
+        Loading dashboard…
       </div>
     );
   }
