@@ -163,9 +163,11 @@ const TenantDetail = () => {
             icon={<AlertTriangle />}
             value={`Reason: ${allocation.deactivateReason || "—"}`}
           />
-          {allocation.deactivateRemark && (
-            <Row value={`Remark: ${allocation.deactivateRemark || "-"}`} />
-          )}
+          <Row
+            value={`Remark: ${
+              allocation.deactivateRemark ? allocation.deactivateRemark : "-"
+            }`}
+          />
         </Card>
       )}
 
