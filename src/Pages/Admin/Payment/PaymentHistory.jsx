@@ -99,6 +99,7 @@ const PaymentHistory = () => {
         <Select value={status} onChange={setStatus} placeholder="Status">
           <option value="Paid">Paid</option>
           <option value="Pending">Pending</option>
+          <option value="Overdue">Overdue</option>
         </Select>
       </div>
 
