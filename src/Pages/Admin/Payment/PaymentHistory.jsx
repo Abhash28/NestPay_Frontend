@@ -243,7 +243,7 @@ const PaymentHistory = () => {
               label="Paid On"
               value={new Date(transaction.paidAt).toLocaleDateString("en-IN")}
             />
-            <DetailRow label="Transaction ID" value={transaction._id} />
+            <DetailRow label="Transaction ID" value={transaction.paymentId} />
 
             <button
               onClick={() => setShowModal(false)}

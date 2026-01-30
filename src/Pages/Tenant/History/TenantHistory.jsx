@@ -10,9 +10,11 @@ const TenantHistory = () => {
   const [showModal, setShowModal] = useState(false);
   const [transaction, setTransaction] = useState(null);
 
-  /* ===== FETCH HISTORY ===== */
+  /* ===== FETCH TENANT PAYMENT HISTORY ===== */
   useEffect(() => {
-    const showRentHistory = async () => {
+    const controller = new AbortController();
+
+    const fetchTenantHistory = async () => {
       try {
         setPageLoading(true);
 
@@ -22,24 +24,32 @@ const TenantHistory = () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
+            signal: controller.signal,
           },
         );
 
         setRent(res.data.paymentHistory || []);
       } catch (error) {
-        console.error("Tenant history error:", error);
+        if (!axios.isCancel(error)) {
+          console.error("Tenant history error:", error);
+        }
       } finally {
-        setPageLoading(false);
+        // ensures loader always renders at least once
+        setTimeout(() => {
+          setPageLoading(false);
+        }, 300);
       }
     };
 
-    showRentHistory();
+    fetchTenantHistory();
+
+    return () => controller.abort();
   }, []);
 
   /* ===== FILTER PAID ONLY ===== */
   const paidRent = rent.filter((r) => r.status === "SUCCESS");
 
-  /* ===== PAGE LOADER (SAME AS DASHBOARD) ===== */
+  /* ===== FULL PAGE LOADER ===== */
   if (pageLoading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -125,7 +135,6 @@ const TenantHistory = () => {
       {showModal && transaction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white w-full max-w-md rounded-2xl p-5 space-y-4">
-            {/* Header */}
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-black text-slate-900">
                 Payment Details
@@ -138,7 +147,6 @@ const TenantHistory = () => {
               </button>
             </div>
 
-            {/* Amount */}
             <div className="bg-slate-50 rounded-xl p-3 flex items-center justify-between">
               <span className="text-sm text-slate-500">Amount</span>
               <span className="font-black text-slate-900 flex items-center gap-1">
