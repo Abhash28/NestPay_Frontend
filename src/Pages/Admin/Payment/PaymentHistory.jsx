@@ -9,16 +9,19 @@ const PaymentHistory = () => {
   const [status, setStatus] = useState("");
 
   const [rentHistory, setRentHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [showModal, setShowModal] = useState(false);
   const [transaction, setTransaction] = useState(null);
 
+  // per-card loading (transaction detail)
+  const [detailLoadingId, setDetailLoadingId] = useState(null);
+
   /* ===== FETCH PAYMENT HISTORY ===== */
   const fetchPaymentHistory = async () => {
     try {
-      setLoading(true);
+      setPageLoading(true);
       setError("");
 
       const params = {};
@@ -42,13 +45,15 @@ const PaymentHistory = () => {
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load payment history");
     } finally {
-      setLoading(false);
+      setPageLoading(false);
     }
   };
 
   /* ===== FETCH TRANSACTION DETAIL ===== */
   const fetchTransactionDetail = async (rentDueId) => {
     try {
+      setDetailLoadingId(rentDueId);
+
       const res = await axios.get(
         `https://nestpay-backend.onrender.com/api/payment/transaction-detail/${rentDueId}`,
         {
@@ -62,6 +67,8 @@ const PaymentHistory = () => {
       setShowModal(true);
     } catch (error) {
       console.log(error.response?.data || error.message);
+    } finally {
+      setDetailLoadingId(null);
     }
   };
 
@@ -69,13 +76,13 @@ const PaymentHistory = () => {
     fetchPaymentHistory();
   }, [month, year, status]);
 
-  /* ===== LOADER ===== */
-  if (loading) {
+  /* ===== PAGE LOADER (SAME AS DASHBOARD) ===== */
+  if (pageLoading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="flex items-center gap-3 text-slate-600 font-semibold">
           <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          Loading payment history…
+          Loading payment history...
         </div>
       </div>
     );
@@ -134,15 +141,18 @@ const PaymentHistory = () => {
         <div className="space-y-3">
           {rentHistory.map((rent) => {
             const isPaid = rent.status === "Paid";
+            const isLoading = detailLoadingId === rent._id;
 
             return (
               <div
                 key={rent._id}
                 onClick={
-                  isPaid ? () => fetchTransactionDetail(rent._id) : undefined
+                  isPaid && !isLoading
+                    ? () => fetchTransactionDetail(rent._id)
+                    : undefined
                 }
                 className={`
-                  bg-white border border-slate-200 rounded-xl p-3 space-y-2 transition
+                  relative bg-white border border-slate-200 rounded-xl p-3 space-y-2 transition
                   ${
                     isPaid
                       ? "cursor-pointer hover:border-indigo-400 hover:shadow-sm"
@@ -150,6 +160,16 @@ const PaymentHistory = () => {
                   }
                 `}
               >
+                {/* ===== CARD LOADER ===== */}
+                {isLoading && (
+                  <div className="absolute inset-0 bg-white/70 rounded-xl z-10 flex items-center justify-center">
+                    <div className="flex items-center gap-2 text-slate-600 font-semibold">
+                      <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                      Loading...
+                    </div>
+                  </div>
+                )}
+
                 {/* Row 1 */}
                 <div className="flex items-center justify-between">
                   <span className="font-black text-slate-900 text-sm flex items-center gap-1">
@@ -223,7 +243,7 @@ const PaymentHistory = () => {
               label="Paid On"
               value={new Date(transaction.paidAt).toLocaleDateString("en-IN")}
             />
-            <DetailRow label="Transaction ID" value={transaction.paymentId} />
+            <DetailRow label="Transaction ID" value={transaction._id} />
 
             <button
               onClick={() => setShowModal(false)}

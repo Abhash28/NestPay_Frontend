@@ -5,15 +5,17 @@ import formatMonthYear from "../../../../utils/convertMonth";
 
 const TenantHistory = () => {
   const [rent, setRent] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
 
   const [showModal, setShowModal] = useState(false);
   const [transaction, setTransaction] = useState(null);
 
-  // ================= FETCH HISTORY =================
+  /* ===== FETCH HISTORY ===== */
   useEffect(() => {
     const showRentHistory = async () => {
       try {
+        setPageLoading(true);
+
         const res = await axios.get(
           "https://nestpay-backend.onrender.com/api/payment/tenant/history",
           {
@@ -22,24 +24,29 @@ const TenantHistory = () => {
             },
           },
         );
+
         setRent(res.data.paymentHistory || []);
       } catch (error) {
         console.error("Tenant history error:", error);
       } finally {
-        setLoading(false);
+        setPageLoading(false);
       }
     };
+
     showRentHistory();
   }, []);
 
-  // ================= FILTER PAID =================
+  /* ===== FILTER PAID ONLY ===== */
   const paidRent = rent.filter((r) => r.status === "SUCCESS");
 
-  // ================= LOADING =================
-  if (loading) {
+  /* ===== PAGE LOADER (SAME AS DASHBOARD) ===== */
+  if (pageLoading) {
     return (
-      <div className="flex items-center justify-center h-[50vh] text-slate-500 font-semibold">
-        Loading payment history…
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="flex items-center gap-3 text-slate-600 font-semibold">
+          <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          Loading payment history...
+        </div>
       </div>
     );
   }
@@ -87,7 +94,7 @@ const TenantHistory = () => {
                 {payment.amount}
               </div>
 
-              {/* Dates */}
+              {/* Due Date */}
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <Calendar className="w-4 h-4" />
                 Due:{" "}
@@ -98,6 +105,7 @@ const TenantHistory = () => {
                   : "—"}
               </div>
 
+              {/* Paid Date */}
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <Calendar className="w-4 h-4" />
                 Paid: {new Date(payment.paidAt).toLocaleDateString("en-IN")}
@@ -165,7 +173,6 @@ const TenantHistory = () => {
 };
 
 /* ===== SMALL COMPONENT ===== */
-
 const DetailRow = ({ label, value }) => (
   <div className="flex items-center justify-between text-sm">
     <span className="text-slate-500">{label}</span>
