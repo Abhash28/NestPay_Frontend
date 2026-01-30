@@ -47,7 +47,7 @@ const Payment = () => {
   }, []);
 
   /* ================= RAZORPAY ================= */
-  const openRazorpay = (orderData) => {
+  const openRazorpay = (orderData, due) => {
     if (!window.Razorpay) {
       alert("Razorpay SDK not loaded");
       return;
@@ -60,6 +60,17 @@ const Payment = () => {
       name: "NestPay",
       description: "Monthly Rent Payment",
       order_id: orderData.orderId,
+
+      // who pay
+      prefill: {
+        name: due.tenantId?.tenantName || "",
+        contact: due.tenantId?.tenantMobileNo || "",
+      },
+
+      readonly: {
+        contact: true,
+      },
+
       handler: async (response) => {
         try {
           const token = localStorage.getItem("token");
@@ -78,15 +89,15 @@ const Payment = () => {
     new window.Razorpay(options).open();
   };
 
-  const handlePay = async (rentDueId) => {
+  const handlePay = async (due) => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
         "https://nestpay-backend.onrender.com/api/payment/create-order",
-        { rentDueId },
+        { rentDueId: due._id },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      openRazorpay(res.data);
+      openRazorpay(res.data, due);
     } catch {
       alert("Unable to initiate payment");
     }
@@ -155,92 +166,80 @@ const Payment = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {rentDues.map((due) => {
-            return (
-              <div
-                key={due._id}
-                className="bg-white border border-slate-200 rounded-xl p-4 space-y-2"
-              >
-                {/* Amount + Status */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 font-black text-slate-900">
-                    <IndianRupee className="w-4 h-4" />
-                    {due.rentAmount}
-                  </div>
-                  <StatusBadge status={due.status} />
+          {rentDues.map((due) => (
+            <div
+              key={due._id}
+              className="bg-white border border-slate-200 rounded-xl p-4 space-y-2"
+            >
+              {/* Amount + Status */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1 font-black text-slate-900">
+                  <IndianRupee className="w-4 h-4" />
+                  {due.rentAmount}
                 </div>
-
-                {/* Tenant + Month */}
-                <div className="flex items-center justify-between text-xs text-slate-600">
-                  <span className="truncate flex items-center gap-1">
-                    <User className="w-3.5 h-3.5 text-slate-400" />
-                    {due.tenantId?.tenantName || "—"}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                    {formatMonthYear(due.month)}
-                  </span>
-                </div>
-
-                {/* Property + Due date */}
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="truncate flex items-center gap-1">
-                    <Home className="w-3.5 h-3.5 text-slate-400" />
-                    {due.propertyId?.propertyName} · {due.unitId?.unitName}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    Due {new Date(due.dueDate).toLocaleDateString()}
-                  </span>
-                </div>
-
-                {/* Actions */}
-                {due.status !== "Paid" && (
-                  <div className="flex gap-2 pt-2">
-                    <button
-                      onClick={() => handlePay(due._id)}
-                      className="flex-1 bg-indigo-600 text-white
-                                 font-black py-2 rounded-lg text-xs"
-                    >
-                      Pay Online
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setSelectedDue(due);
-                        setShowCashModal(true);
-                      }}
-                      className="px-3 rounded-lg border border-slate-300 text-slate-600"
-                      title="Mark as cash payment"
-                    >
-                      <Wallet className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
+                <StatusBadge status={due.status} />
               </div>
-            );
-          })}
+
+              {/* Tenant + Month */}
+              <div className="flex items-center justify-between text-xs text-slate-600">
+                <span className="truncate flex items-center gap-1">
+                  <User className="w-3.5 h-3.5 text-slate-400" />
+                  {due.tenantId?.tenantName || "—"}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  {formatMonthYear(due.month)}
+                </span>
+              </div>
+
+              {/* Property + Due date */}
+              <div className="flex items-center justify-between text-xs text-slate-500">
+                <span className="truncate flex items-center gap-1">
+                  <Home className="w-3.5 h-3.5 text-slate-400" />
+                  {due.propertyId?.propertyName} · {due.unitId?.unitName}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  Due {new Date(due.dueDate).toLocaleDateString()}
+                </span>
+              </div>
+
+              {/* Actions */}
+              {due.status !== "Paid" && (
+                <div className="flex gap-2 pt-2">
+                  <button
+                    onClick={() => handlePay(due)}
+                    className="flex-1 bg-indigo-600 text-white font-black py-2 rounded-lg text-xs"
+                  >
+                    Pay Online
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setSelectedDue(due);
+                      setShowCashModal(true);
+                    }}
+                    className="px-3 rounded-lg border border-slate-300 text-slate-600"
+                    title="Mark as cash payment"
+                  >
+                    <Wallet className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
-      {/* ===== CASH CONFIRM MODAL (BOTTOM NAV SAFE) ===== */}
+      {/* ===== CASH CONFIRM MODAL ===== */}
       {showCashModal && selectedDue && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40
-                     flex items-end sm:items-center justify-center
-                     pb-24 sm:pb-0"
-        >
-          <div
-            className="bg-white w-full sm:max-w-sm
-                          rounded-t-2xl sm:rounded-2xl relative"
-          >
-            {/* Header */}
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center pb-24 sm:pb-0">
+          <div className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl">
             <div className="px-4 py-3 border-b flex items-center gap-2 text-amber-600">
               <AlertTriangle className="w-5 h-5" />
               <h3 className="text-lg font-black">Confirm Cash Payment</h3>
             </div>
 
-            {/* Body */}
             <div className="p-4 space-y-2 text-sm text-slate-700">
               <p>
                 Are you sure you want to mark this rent as <b>paid by cash</b>?
@@ -259,12 +258,10 @@ const Payment = () => {
               </div>
             </div>
 
-            {/* Actions */}
             <div className="border-t px-4 py-3 pb-6 flex gap-2 bg-white">
               <button
                 onClick={() => setShowCashModal(false)}
-                className="flex-1 border border-slate-300
-                           rounded-xl py-3 text-sm font-bold"
+                className="flex-1 border border-slate-300 rounded-xl py-3 text-sm font-bold"
               >
                 Cancel
               </button>
@@ -272,9 +269,7 @@ const Payment = () => {
               <button
                 onClick={confirmCashPayment}
                 disabled={cashLoading}
-                className="flex-1 bg-amber-600 text-white
-                           rounded-xl py-3 text-sm font-black
-                           flex items-center justify-center gap-2"
+                className="flex-1 bg-amber-600 text-white rounded-xl py-3 text-sm font-black flex items-center justify-center gap-2"
               >
                 {cashLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                 Confirm

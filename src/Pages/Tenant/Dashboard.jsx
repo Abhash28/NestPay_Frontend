@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import {
-  Home,
-  IndianRupee,
-  Calendar,
-  User,
-  Phone,
-  Wallet,
-  ArrowRight,
-} from "lucide-react";
+import { Home, IndianRupee, Calendar, User, Phone, Wallet } from "lucide-react";
 import formatMonthYear from "../../../utils/convertMonth";
+
+/* ================= COMPONENT ================= */
 
 const TenantDashboard = () => {
   const [tenant, setTenant] = useState(null);
@@ -17,7 +11,7 @@ const TenantDashboard = () => {
   const [lastPay, setLastPay] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ================= FETCH DATA =================
+  /* ================= FETCH DATA ================= */
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -26,21 +20,15 @@ const TenantDashboard = () => {
         const [tenantRes, rentRes, payRes] = await Promise.all([
           axios.get(
             "https://nestpay-backend.onrender.com/api/allocation/tenant/home",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
+            { headers: { Authorization: `Bearer ${token}` } },
           ),
           axios.get(
             "https://nestpay-backend.onrender.com/api/rentdue/tenant/rent",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
+            { headers: { Authorization: `Bearer ${token}` } },
           ),
           axios.get(
             "https://nestpay-backend.onrender.com/api/payment/recent/tenant/paid",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
+            { headers: { Authorization: `Bearer ${token}` } },
           ),
         ]);
 
@@ -57,15 +45,14 @@ const TenantDashboard = () => {
     fetchAll();
   }, []);
 
-  // ================= FILTER =================
-  const pendingRent = rent.filter((r) => r.status === "Pending");
+  /* ================= FILTER ================= */
+  const pendingRent = rent.filter(
+    (r) => r.status === "Pending" || r.status === "Overdue",
+  );
 
-  // ================= RAZORPAY =================
+  /* ================= RAZORPAY ================= */
   const openRazorpay = (orderData) => {
-    if (!window.Razorpay) {
-      alert("Razorpay SDK not loaded");
-      return;
-    }
+    if (!window.Razorpay) return alert("Razorpay SDK not loaded");
 
     const options = {
       key: orderData.key,
@@ -74,6 +61,11 @@ const TenantDashboard = () => {
       name: "NestPay",
       description: "Monthly Rent Payment",
       order_id: orderData.orderId,
+      prefill: {
+        name: tenant?.tenantName || "",
+        contact: tenant?.tenantMobileNo || "",
+      },
+      readonly: { contact: true },
       handler: async (response) => {
         try {
           const token = localStorage.getItem("token");
@@ -107,7 +99,7 @@ const TenantDashboard = () => {
     }
   };
 
-  // ================= LOADING =================
+  /* ================= LOADING ================= */
   if (loading || !tenant) {
     return (
       <div className="text-center text-slate-500 font-semibold">
@@ -118,7 +110,7 @@ const TenantDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* ===== PROPERTY CARD ===== */}
+      {/* ================= PROPERTY CARD ================= */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
         <h2 className="text-lg font-black text-slate-900">
           {tenant.propertyId.propertyName}
@@ -134,7 +126,7 @@ const TenantDashboard = () => {
         <Info icon={<Phone />} text={tenant.adminId.mobileNo} />
       </div>
 
-      {/* ===== PENDING RENT ===== */}
+      {/* ================= RENT DUE ================= */}
       <div className="space-y-3">
         <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">
           Rent Due
@@ -150,15 +142,21 @@ const TenantDashboard = () => {
               key={r._id}
               className="bg-white border border-slate-200 rounded-xl p-4 space-y-3"
             >
+              {/* HEADER */}
               <div className="flex justify-between items-center">
                 <p className="font-black text-slate-900">
                   {formatMonthYear(r.month)}
                 </p>
-                <span className="text-sm font-black text-rose-600">
-                  ₹{r.rentAmount}
-                </span>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-black text-slate-900">
+                    ₹{r.totalAmount || r.rentAmount}
+                  </span>
+                  <StatusBadge status={r.status} />
+                </div>
               </div>
 
+              {/* DUE DATE */}
               <p className="text-xs text-slate-500">
                 Due on{" "}
                 <span className="font-bold">
@@ -166,6 +164,14 @@ const TenantDashboard = () => {
                 </span>
               </p>
 
+              {/* FINE INFO */}
+              {r.status === "Overdue" && r.fineAmount > 0 && (
+                <p className="text-xs text-rose-600 font-semibold">
+                  Late fee included: ₹{r.fineAmount}
+                </p>
+              )}
+
+              {/* PAY BUTTON */}
               <button
                 onClick={() => handlePay(r._id)}
                 className="w-full bg-indigo-600 text-white font-black
@@ -180,7 +186,7 @@ const TenantDashboard = () => {
         )}
       </div>
 
-      {/* ===== LAST PAYMENT ===== */}
+      {/* ================= LAST PAYMENT ================= */}
       <div className="space-y-3">
         <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">
           Last Payment
@@ -217,7 +223,7 @@ const TenantDashboard = () => {
   );
 };
 
-/* ===== SMALL UI ===== */
+/* ================= SMALL UI COMPONENTS ================= */
 
 const Info = ({ icon, text }) => (
   <div className="flex items-center gap-2 text-sm text-slate-600">
@@ -225,5 +231,18 @@ const Info = ({ icon, text }) => (
     <span>{text}</span>
   </div>
 );
+
+const StatusBadge = ({ status }) => {
+  const base =
+    "px-2 py-1 rounded-full text-xs font-black uppercase tracking-wide";
+
+  const styles = {
+    Pending: "bg-amber-100 text-amber-700",
+    Overdue: "bg-rose-100 text-rose-700",
+    Paid: "bg-emerald-100 text-emerald-700",
+  };
+
+  return <span className={`${base} ${styles[status]}`}>{status}</span>;
+};
 
 export default TenantDashboard;

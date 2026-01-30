@@ -167,7 +167,7 @@ const UnitDetail = () => {
               {/* RENT HIGHLIGHT */}
               <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2">
                 <IndianRupee className="w-4 h-4 text-slate-500" />
-                <p className="font-black text-slate-900">₹{unit.monthlyRent}</p>
+                <p className="font-black text-slate-900">{unit.monthlyRent}</p>
                 <span className="text-xs text-slate-500">/ month</span>
               </div>
 
