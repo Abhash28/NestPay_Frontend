@@ -20,15 +20,21 @@ const TenantDashboard = () => {
         const [tenantRes, rentRes, payRes] = await Promise.all([
           axios.get(
             "https://nestpay-backend.onrender.com/api/allocation/tenant/home",
-            { headers: { Authorization: `Bearer ${token}` } },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
           ),
           axios.get(
             "https://nestpay-backend.onrender.com/api/rentdue/tenant/rent",
-            { headers: { Authorization: `Bearer ${token}` } },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
           ),
           axios.get(
             "https://nestpay-backend.onrender.com/api/payment/recent/tenant/paid",
-            { headers: { Authorization: `Bearer ${token}` } },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
           ),
         ]);
 
