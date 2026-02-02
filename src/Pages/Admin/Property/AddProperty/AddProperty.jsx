@@ -25,16 +25,43 @@ const AddProperty = () => {
 
   const handleAddProperty = async (e) => {
     e.preventDefault();
+
+    // 🔒 prevent double submit
+    if (loading) return;
+
     setError("");
     setSuccess("");
+
+    // ✅ basic validation (MAJOR FIX)
+    if (
+      !formData.propertyName.trim() ||
+      !formData.propertyAddress.trim() ||
+      !formData.monthlyRent
+    ) {
+      setError("All fields are required");
+      return;
+    }
+
+    if (Number(formData.monthlyRent) <= 0) {
+      setError("Monthly rent must be greater than 0");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Session expired. Please login again.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
-
       await axios.post(
         "https://nestpay-backend.onrender.com/api/property/add-property",
-        formData,
+        {
+          ...formData,
+          monthlyRent: Number(formData.monthlyRent), // 🔧 major fix
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -55,7 +82,7 @@ const AddProperty = () => {
       }, 1500);
     } catch (error) {
       if (error.response) {
-        setError(error.response.data.message);
+        setError(error.response.data?.message || "Something went wrong");
       } else {
         setError("Server not responding");
       }
@@ -87,7 +114,7 @@ const AddProperty = () => {
         </div>
       )}
 
-      {/* ===== FORM CARD ===== */}
+      {/* ===== FORM ===== */}
       <form
         onSubmit={handleAddProperty}
         className="bg-white border border-slate-200 rounded-xl p-4 space-y-4"
@@ -123,14 +150,13 @@ const AddProperty = () => {
           }
         />
 
-        {/* ===== ACTION ===== */}
         <button
           type="submit"
           disabled={loading}
           className="w-full bg-[#020617] hover:bg-indigo-700 text-white
                      font-black py-3 rounded-lg transition
                      flex items-center justify-center gap-2
-                     disabled:bg-slate-300"
+                     disabled:bg-slate-300 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>
@@ -147,7 +173,6 @@ const AddProperty = () => {
 };
 
 /* ===== Reusable Input ===== */
-
 const Input = ({ icon, label, ...props }) => (
   <div className="space-y-1.5">
     <label className="text-[10px] uppercase tracking-widest font-black text-slate-400">

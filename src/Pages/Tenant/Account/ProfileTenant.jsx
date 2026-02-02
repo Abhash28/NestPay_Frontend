@@ -7,45 +7,60 @@ const ProfileTenant = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ================= FETCH PROFILE =================
+  /* ================= FETCH PROFILE ================= */
   useEffect(() => {
+    const controller = new AbortController();
+
     const profileData = async () => {
       try {
+        setLoading(true);
+
         const res = await axios.get(
           "https://nestpay-backend.onrender.com/api/tenant/profile",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
+            signal: controller.signal,
           },
         );
+
         setProfile(res.data.profile);
       } catch (err) {
-        console.error(err);
-        setError("Failed to load tenant profile");
+        if (!axios.isCancel(err)) {
+          console.error("Tenant profile error:", err);
+          setError("Failed to load tenant profile");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     profileData();
+    return () => controller.abort();
   }, []);
 
-  // ================= UI STATES =================
-  if (loading)
+  /* ================= UI STATES ================= */
+  if (loading) {
     return (
-      <div className="text-center text-slate-500 font-semibold">
-        Loading profile…
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="flex items-center gap-3 text-slate-600 font-semibold">
+          <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          Loading profile…
+        </div>
       </div>
     );
+  }
 
-  if (error)
+  if (error) {
     return (
       <div className="text-center text-rose-600 font-semibold">{error}</div>
     );
+  }
 
-  if (!profile)
+  if (!profile) {
     return <div className="text-center text-slate-500">No profile found</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -53,7 +68,7 @@ const ProfileTenant = () => {
       <div className="flex flex-col items-center text-center">
         <div
           className="w-20 h-20 rounded-full bg-indigo-100
-                        flex items-center justify-center"
+                     flex items-center justify-center"
         >
           <User className="w-9 h-9 text-indigo-600" />
         </div>
@@ -106,7 +121,7 @@ const InfoRow = ({ icon, label, value }) => (
   <div className="flex items-start gap-3">
     <div
       className="w-10 h-10 rounded-lg bg-slate-100
-                    flex items-center justify-center text-slate-500"
+                 flex items-center justify-center text-slate-500"
     >
       {icon}
     </div>
@@ -114,7 +129,7 @@ const InfoRow = ({ icon, label, value }) => (
     <div className="flex-1">
       <p
         className="text-[11px] font-black text-slate-400
-                    uppercase tracking-widest"
+                   uppercase tracking-widest"
       >
         {label}
       </p>

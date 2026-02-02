@@ -18,16 +18,43 @@ const AddTenant = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 🔒 prevent double submit
+    if (loading) return;
+
     setError("");
     setSuccess("");
+
+    // ✅ basic validation (MAJOR FIX)
+    if (
+      !formData.tenantName.trim() ||
+      !formData.tenantMobileNo ||
+      !formData.tenantAddress.trim()
+    ) {
+      setError("All fields are required");
+      return;
+    }
+
+    if (formData.tenantMobileNo.length < 10) {
+      setError("Enter a valid mobile number");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Session expired. Please login again.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
-
       await axios.post(
         "https://nestpay-backend.onrender.com/api/tenant/add-tenant",
-        formData,
+        {
+          ...formData,
+          tenantMobileNo: String(formData.tenantMobileNo), // keep safe
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -48,7 +75,7 @@ const AddTenant = () => {
       }, 1500);
     } catch (error) {
       if (error.response) {
-        setError(error.response.data.message);
+        setError(error.response.data?.message || "Something went wrong");
       } else {
         setError("Server not responding");
       }
@@ -122,7 +149,7 @@ const AddTenant = () => {
           disabled={loading}
           className="w-full bg-indigo-600 text-white font-black py-3 rounded-xl
                      flex items-center justify-center gap-2
-                     disabled:bg-slate-300 transition"
+                     disabled:bg-slate-300 disabled:cursor-not-allowed transition"
         >
           {loading ? (
             <>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { Home, IndianRupee, Calendar, User, Phone, Wallet } from "lucide-react";
 import formatMonthYear from "../../../utils/convertMonth";
@@ -11,29 +11,34 @@ const TenantDashboard = () => {
   const [lastPay, setLastPay] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /* ================= FETCH DATA ================= */
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
-    const fetchAll = async () => {
+  /* ================= FETCH ALL DATA ================= */
+  const fetchAll = useCallback(
+    async (signal) => {
       try {
+        setLoading(true);
+
         const [tenantRes, rentRes, payRes] = await Promise.all([
           axios.get(
             "https://nestpay-backend.onrender.com/api/allocation/tenant/home",
             {
               headers: { Authorization: `Bearer ${token}` },
+              signal,
             },
           ),
           axios.get(
             "https://nestpay-backend.onrender.com/api/rentdue/tenant/rent",
             {
               headers: { Authorization: `Bearer ${token}` },
+              signal,
             },
           ),
           axios.get(
             "https://nestpay-backend.onrender.com/api/payment/recent/tenant/paid",
             {
               headers: { Authorization: `Bearer ${token}` },
+              signal,
             },
           ),
         ]);
@@ -42,14 +47,22 @@ const TenantDashboard = () => {
         setRent(rentRes.data.allRent || []);
         setLastPay(payRes.data.recentPayment || []);
       } catch (err) {
-        console.error(err);
+        if (!axios.isCancel(err)) {
+          console.error("Tenant dashboard error:", err);
+        }
       } finally {
         setLoading(false);
       }
-    };
+    },
+    [token],
+  );
 
-    fetchAll();
-  }, []);
+  /* ================= INITIAL LOAD ================= */
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchAll(controller.signal);
+    return () => controller.abort();
+  }, [fetchAll]);
 
   /* ================= FILTER ================= */
   const pendingRent = rent.filter(
@@ -58,7 +71,10 @@ const TenantDashboard = () => {
 
   /* ================= RAZORPAY ================= */
   const openRazorpay = (orderData) => {
-    if (!window.Razorpay) return alert("Razorpay SDK not loaded");
+    if (!window.Razorpay) {
+      alert("Razorpay SDK not loaded");
+      return;
+    }
 
     const options = {
       key: orderData.key,
@@ -74,14 +90,14 @@ const TenantDashboard = () => {
       readonly: { contact: true },
       handler: async (response) => {
         try {
-          const token = localStorage.getItem("token");
           await axios.post(
             "https://nestpay-backend.onrender.com/api/payment/verifyPayment",
             response,
             { headers: { Authorization: `Bearer ${token}` } },
           );
-          alert("Payment Successful");
-          window.location.reload();
+
+          // 🔥 Refresh data only (NO PAGE RELOAD)
+          fetchAll();
         } catch {
           alert("Payment verification failed");
         }
@@ -93,12 +109,12 @@ const TenantDashboard = () => {
 
   const handlePay = async (rentDueId) => {
     try {
-      const token = localStorage.getItem("token");
       const res = await axios.post(
         "https://nestpay-backend.onrender.com/api/payment/create-order",
         { rentDueId },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+
       openRazorpay(res.data);
     } catch {
       alert("Unable to initiate payment");
@@ -106,10 +122,21 @@ const TenantDashboard = () => {
   };
 
   /* ================= LOADING ================= */
-  if (loading || !tenant) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="flex items-center gap-3 text-slate-600 font-semibold">
+          <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          Loading dashboard…
+        </div>
+      </div>
+    );
+  }
+
+  if (!tenant) {
     return (
       <div className="text-center text-slate-500 font-semibold">
-        Loading dashboard…
+        Unable to load dashboard
       </div>
     );
   }
@@ -148,7 +175,6 @@ const TenantDashboard = () => {
               key={r._id}
               className="bg-white border border-slate-200 rounded-xl p-4 space-y-3"
             >
-              {/* HEADER */}
               <div className="flex justify-between items-center">
                 <p className="font-black text-slate-900">
                   {formatMonthYear(r.month)}
@@ -162,7 +188,6 @@ const TenantDashboard = () => {
                 </div>
               </div>
 
-              {/* DUE DATE */}
               <p className="text-xs text-slate-500">
                 Due on{" "}
                 <span className="font-bold">
@@ -170,19 +195,16 @@ const TenantDashboard = () => {
                 </span>
               </p>
 
-              {/* FINE INFO */}
               {r.status === "Overdue" && r.fineAmount > 0 && (
                 <p className="text-xs text-rose-600 font-semibold">
                   Late fee included: ₹{r.fineAmount}
                 </p>
               )}
 
-              {/* PAY BUTTON */}
               <button
                 onClick={() => handlePay(r._id)}
-                className="w-full bg-indigo-600 text-white font-black
-                           py-3 rounded-xl flex items-center
-                           justify-center gap-2 active:scale-[0.98]"
+                className="w-full bg-indigo-600 text-white font-black py-3 rounded-xl
+                           flex items-center justify-center gap-2 active:scale-[0.98]"
               >
                 <Wallet className="w-5 h-5" />
                 Pay Now

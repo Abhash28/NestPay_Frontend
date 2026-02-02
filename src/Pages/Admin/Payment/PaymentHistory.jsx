@@ -15,7 +15,6 @@ const PaymentHistory = () => {
   const [showModal, setShowModal] = useState(false);
   const [transaction, setTransaction] = useState(null);
 
-  // per-card loading (transaction detail)
   const [detailLoadingId, setDetailLoadingId] = useState(null);
 
   /* ===== FETCH PAYMENT HISTORY ===== */
@@ -76,7 +75,6 @@ const PaymentHistory = () => {
     fetchPaymentHistory();
   }, [month, year, status]);
 
-  /* ===== PAGE LOADER (SAME AS DASHBOARD) ===== */
   if (pageLoading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -90,13 +88,11 @@ const PaymentHistory = () => {
 
   return (
     <div className="p-4 max-w-3xl mx-auto space-y-5 pb-24">
-      {/* ===== HEADER ===== */}
       <div>
         <h1 className="text-xl font-black text-slate-900">Payment History</h1>
         <p className="text-xs text-slate-500">Track all rent payments</p>
       </div>
 
-      {/* ===== FILTER BAR ===== */}
       <div className="bg-white border border-slate-200 rounded-xl p-3 flex gap-2 overflow-x-auto">
         <Select value={month} onChange={setMonth} placeholder="Month">
           <option value="01">Jan</option>
@@ -132,7 +128,6 @@ const PaymentHistory = () => {
         </div>
       )}
 
-      {/* ===== PAYMENT LIST ===== */}
       {rentHistory.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-xl p-6 text-center text-slate-500">
           No payment records found
@@ -151,16 +146,8 @@ const PaymentHistory = () => {
                     ? () => fetchTransactionDetail(rent._id)
                     : undefined
                 }
-                className={`
-                  relative bg-white border border-slate-200 rounded-xl p-3 space-y-2 transition
-                  ${
-                    isPaid
-                      ? "cursor-pointer hover:border-indigo-400 hover:shadow-sm"
-                      : "opacity-50 cursor-not-allowed pointer-events-none"
-                  }
-                `}
+                className="relative bg-white border border-slate-200 rounded-xl p-3 space-y-2 transition hover:border-indigo-400 hover:shadow-sm"
               >
-                {/* ===== CARD LOADER ===== */}
                 {isLoading && (
                   <div className="absolute inset-0 bg-white/70 rounded-xl z-10 flex items-center justify-center">
                     <div className="flex items-center gap-2 text-slate-600 font-semibold">
@@ -170,7 +157,6 @@ const PaymentHistory = () => {
                   </div>
                 )}
 
-                {/* Row 1 */}
                 <div className="flex items-center justify-between">
                   <span className="font-black text-slate-900 text-sm flex items-center gap-1">
                     <IndianRupee className="w-4 h-4" />
@@ -179,7 +165,6 @@ const PaymentHistory = () => {
                   <StatusBadge status={rent.status} />
                 </div>
 
-                {/* Row 2 */}
                 <Row
                   icon={<User className="w-3.5 h-3.5" />}
                   text={rent.tenantId?.tenantName || "—"}
@@ -193,7 +178,6 @@ const PaymentHistory = () => {
                   }
                 />
 
-                {/* Row 3 */}
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" />
@@ -213,29 +197,12 @@ const PaymentHistory = () => {
         </div>
       )}
 
-      {/* ===== TRANSACTION MODAL ===== */}
       {showModal && transaction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white w-full max-w-md rounded-2xl p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-slate-900">
-                Transaction Details
-              </h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-xl text-slate-400 hover:text-slate-600"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="bg-slate-50 rounded-xl p-3 flex items-center justify-between">
-              <span className="text-sm text-slate-500">Amount</span>
-              <span className="font-black text-slate-900 flex items-center gap-1">
-                <IndianRupee className="w-4 h-4" />
-                {transaction.amount}
-              </span>
-            </div>
+            <h2 className="text-lg font-black text-slate-900">
+              Transaction Details
+            </h2>
 
             <DetailRow label="Payment Method" value={transaction.method} />
             <DetailRow label="Status" value={transaction.status} />
@@ -280,10 +247,15 @@ const Row = ({ icon, text }) => (
 );
 
 const StatusBadge = ({ status }) => {
-  const styles =
-    status === "Paid"
-      ? "bg-emerald-50 text-emerald-600"
-      : "bg-amber-50 text-amber-600";
+  let styles = "bg-slate-100 text-slate-600";
+
+  if (status === "Paid") {
+    styles = "bg-emerald-50 text-emerald-600";
+  } else if (status === "Pending") {
+    styles = "bg-amber-50 text-amber-600";
+  } else if (status === "Overdue") {
+    styles = "bg-rose-50 text-rose-600";
+  }
 
   return (
     <span className={`px-2 py-0.5 rounded-full text-xs font-black ${styles}`}>

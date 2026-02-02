@@ -43,7 +43,7 @@ function App() {
               role === "admin" ? (
                 <Navigate to="/admin-dashboard" />
               ) : (
-                <Navigate to="/tenant-home" />
+                <Navigate to="/tenant" />
               )
             ) : (
               <Navigate to="/login" />
@@ -92,16 +92,17 @@ function App() {
 
         {/* ================= TENANT ROUTES ================= */}
         <Route
+          path="/tenant"
           element={
             <ProtectedRoute allowedRole="tenant">
               <TenantLayout />
             </ProtectedRoute>
           }
         >
-          <Route path="/tenant-home" element={<TenantDashboard />} />
-          <Route path="/tenant-history" element={<TenantHistory />} />
-          <Route path="/tenant-notification" element={<TenantNotification />} />
-          <Route path="/tenant-account" element={<ProfileTenant />} />
+          <Route index element={<TenantDashboard />} />
+          <Route path="history" element={<TenantHistory />} />
+          <Route path="notification" element={<TenantNotification />} />
+          <Route path="account" element={<ProfileTenant />} />
         </Route>
       </Routes>
     </BrowserRouter>

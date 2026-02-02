@@ -142,7 +142,7 @@ const RecentPaymentCard = ({ payment }) => {
           {payment.tenantId?.tenantName || "Unknown Tenant"}
         </p>
         <p className="text-xs font-semibold text-slate-500 mt-1">
-          Unit {payment.unitId?.unitName || "N/A"} • {paidDate}
+          {payment.unitId?.unitName || "N/A"} • {paidDate}
         </p>
       </div>
 

@@ -28,18 +28,35 @@ const TenantDetail = () => {
   const [deactivateReason, setDeactivateReason] = useState("");
   const [deactivateRemark, setDeactivateRemark] = useState("");
 
+  // 🔴 modal-only error
+  const [modalError, setModalError] = useState("");
+
+  // 🔴 NEW: tenant exists but not allocated
+  const [notAllocated, setNotAllocated] = useState(false);
+
   /* ================= FETCH ================= */
   useEffect(() => {
     const fetchTenant = async () => {
       try {
         const token = localStorage.getItem("token");
+
         const res = await axios.get(
           `https://nestpay-backend.onrender.com/api/allocation/tenant-info/${tenantId}`,
           { headers: { Authorization: `Bearer ${token}` } },
         );
+
         setAllocation(res.data.allocation);
       } catch (err) {
-        setError(err.response?.data?.message || "Server not responding");
+        // 🔥 FIX: tenant exists but no allocation
+        if (
+          err.response?.status === 404 ||
+          err.response?.data?.message?.toLowerCase().includes("not found")
+        ) {
+          setNotAllocated(true);
+          setAllocation(null);
+        } else {
+          setError(err.response?.data?.message || "Server not responding");
+        }
       } finally {
         setFetching(false);
       }
@@ -50,8 +67,10 @@ const TenantDetail = () => {
 
   /* ================= DEACTIVATE ================= */
   const confirmDeactivate = async () => {
+    setModalError("");
+
     if (!endDate || !deactivateReason) {
-      setError("End date and reason are required");
+      setModalError("End date and reason are required");
       return;
     }
 
@@ -77,7 +96,7 @@ const TenantDetail = () => {
 
       setShowModal(false);
     } catch (err) {
-      setError(err.response?.data?.message || "Server not responding");
+      setModalError(err.response?.data?.message || "Server not responding");
     } finally {
       setLoading(false);
     }
@@ -95,8 +114,25 @@ const TenantDetail = () => {
     );
   }
 
+  /* ================= NOT ALLOCATED ================= */
+  if (notAllocated) {
+    return (
+      <div className="p-4 max-w-xl mx-auto">
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <p className="font-bold text-amber-700 text-sm">
+            Tenant is not allocated to any unit
+          </p>
+          <p className="text-xs text-amber-600 mt-1">
+            Allocate a unit to view full tenant details.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  /* ================= NOT FOUND ================= */
   if (!allocation) {
-    return <div className="p-4 text-rose-600 font-bold">No tenant found</div>;
+    return <div className="p-4 text-rose-600 font-bold">Tenant not found</div>;
   }
 
   const tenant = allocation.tenantId;
@@ -148,7 +184,7 @@ const TenantDetail = () => {
         <Row value={`Rent: ₹${allocation.rentAmount}`} />
       </Card>
 
-      {/* 🔥 DEACTIVATION DETAILS (ONLY IF INACTIVE) */}
+      {/* DEACTIVATION DETAILS */}
       {tenant.status === "Inactive" && (
         <Card title="Deactivation Details">
           <Row
@@ -163,11 +199,7 @@ const TenantDetail = () => {
             icon={<AlertTriangle />}
             value={`Reason: ${allocation.deactivateReason || "—"}`}
           />
-          <Row
-            value={`Remark: ${
-              allocation.deactivateRemark ? allocation.deactivateRemark : "-"
-            }`}
-          />
+          <Row value={`Remark: ${allocation.deactivateRemark || "-"}`} />
         </Card>
       )}
 
@@ -175,7 +207,7 @@ const TenantDetail = () => {
       {tenant.status === "Active" && (
         <button
           onClick={() => setShowModal(true)}
-          className="w-full bg-rose-600 text-white font-black py-3 rounded-xl active:scale-[0.98]"
+          className="w-full bg-rose-600 text-white font-black py-3 rounded-xl"
         >
           Deactivate Tenant
         </button>
@@ -191,6 +223,12 @@ const TenantDetail = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {modalError && (
+                <div className="bg-rose-50 text-rose-600 text-sm font-bold rounded-xl px-3 py-2">
+                  {modalError}
+                </div>
+              )}
+
               <Input
                 type="date"
                 value={endDate}

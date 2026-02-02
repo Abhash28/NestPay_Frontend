@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { User, Phone, MapPin, Home, Info } from "lucide-react";
+import { Phone, MapPin, Home, Info } from "lucide-react";
 
 const InactiveTenant = () => {
   const navigate = useNavigate();
@@ -13,33 +13,49 @@ const InactiveTenant = () => {
 
   // ================= FETCH TENANTS =================
   useEffect(() => {
+    let mounted = true;
+
     const fetchTenants = async () => {
       try {
         const token = localStorage.getItem("token");
+        if (!token) {
+          setError("Session expired. Please login again.");
+          return;
+        }
+
         const res = await axios.get(
           "https://nestpay-backend.onrender.com/api/tenant/all-tenant",
           {
             headers: { Authorization: `Bearer ${token}` },
           },
         );
-        setTenants(res.data.tenants || []);
+
+        if (mounted) {
+          setTenants(res.data.tenants || []);
+        }
       } catch (err) {
-        setError(err.response?.data?.message || "Server not responding");
+        if (mounted) {
+          setError(err.response?.data?.message || "Server not responding");
+        }
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
     fetchTenants();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // ================= FILTER =================
   const inactiveTenants = tenants
     .filter((t) => t.status === "Inactive")
-    .filter((t) => t.tenantName?.toLowerCase().includes(search.toLowerCase()));
+    .filter((t) =>
+      (t.tenantName || "").toLowerCase().includes(search.toLowerCase()),
+    );
 
   // ================= LOADING =================
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -50,6 +66,7 @@ const InactiveTenant = () => {
       </div>
     );
   }
+
   return (
     <div className="p-4 max-w-3xl mx-auto space-y-4">
       {/* ===== HEADER ===== */}
@@ -70,21 +87,16 @@ const InactiveTenant = () => {
                    rounded-lg text-sm font-semibold outline-none"
       />
 
+      {/* ===== ERROR ===== */}
       {error && (
-        <div
-          className="bg-rose-50 text-rose-600 text-sm
-                        font-semibold p-3 rounded-lg"
-        >
+        <div className="bg-rose-50 text-rose-600 text-sm font-semibold p-3 rounded-lg">
           {error}
         </div>
       )}
 
       {/* ===== LIST ===== */}
-      {inactiveTenants.length === 0 ? (
-        <div
-          className="bg-white border border-slate-200 rounded-xl
-                        p-6 text-center text-slate-500 text-sm"
-        >
+      {!error && inactiveTenants.length === 0 ? (
+        <div className="bg-white border border-slate-200 rounded-xl p-6 text-center text-slate-500 text-sm">
           No inactive tenants found
         </div>
       ) : (
@@ -92,37 +104,28 @@ const InactiveTenant = () => {
           {inactiveTenants.map((tenant) => (
             <div
               key={tenant._id}
-              className="bg-white border border-slate-200
-                         rounded-lg p-3 space-y-2"
+              className="bg-white border border-slate-200 rounded-lg p-3 space-y-2"
             >
-              {/* Top */}
               <div className="flex items-center justify-between">
                 <p className="font-semibold text-slate-900">
-                  {tenant.tenantName}
+                  {tenant.tenantName || "—"}
                 </p>
 
-                <span
-                  className="text-[11px] px-2 py-[2px]
-                                 rounded-full bg-slate-200
-                                 text-slate-700 font-semibold"
-                >
+                <span className="text-[11px] px-2 py-[2px] rounded-full bg-slate-200 text-slate-700 font-semibold">
                   Inactive
                 </span>
               </div>
 
-              {/* Info */}
-              <Row icon={<Phone />} text={tenant.tenantMobileNo} />
+              <Row icon={<Phone />} text={tenant.tenantMobileNo || "—"} />
               <Row icon={<MapPin />} text={tenant.tenantAddress || "—"} />
               <Row
                 icon={<Home />}
                 text={tenant.unitId?.unitName || "No unit"}
               />
 
-              {/* Action */}
               <button
                 onClick={() => navigate(`/admin-tenant/detail/${tenant._id}`)}
-                className="flex items-center gap-1 text-xs
-                           font-semibold text-indigo-600 pt-1"
+                className="flex items-center gap-1 text-xs font-semibold text-indigo-600 pt-1"
               >
                 <Info className="w-4 h-4" />
                 View Details

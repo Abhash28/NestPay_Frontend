@@ -33,7 +33,7 @@ function Login() {
       if (response.data.success) {
         response.data.role === "admin"
           ? navigate("/admin-dashboard")
-          : navigate("/tenant-home");
+          : navigate("/tenant");
       }
     } catch (error) {
       setError(error.response?.data?.message || "Unable to login. Try again.");
