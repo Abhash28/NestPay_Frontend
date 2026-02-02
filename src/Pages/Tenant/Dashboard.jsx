@@ -1,6 +1,13 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { Home, IndianRupee, Calendar, User, Phone, Wallet } from "lucide-react";
+import {
+  Home,
+  IndianRupee,
+  Calendar,
+  User,
+  Wallet,
+  Loader2,
+} from "lucide-react";
 import formatMonthYear from "../../../utils/convertMonth";
 
 /* ================= COMPONENT ================= */
@@ -10,6 +17,9 @@ const TenantDashboard = () => {
   const [rent, setRent] = useState([]);
   const [lastPay, setLastPay] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // ✅ ONLY NEW STATE
+  const [payingRentId, setPayingRentId] = useState(null);
 
   const token = localStorage.getItem("token");
 
@@ -70,9 +80,10 @@ const TenantDashboard = () => {
   );
 
   /* ================= RAZORPAY ================= */
-  const openRazorpay = (orderData) => {
+  const openRazorpay = (orderData, rentDueId) => {
     if (!window.Razorpay) {
       alert("Razorpay SDK not loaded");
+      setPayingRentId(null);
       return;
     }
 
@@ -88,6 +99,7 @@ const TenantDashboard = () => {
         contact: tenant?.tenantMobileNo || "",
       },
       readonly: { contact: true },
+
       handler: async (response) => {
         try {
           await axios.post(
@@ -96,11 +108,18 @@ const TenantDashboard = () => {
             { headers: { Authorization: `Bearer ${token}` } },
           );
 
-          // 🔥 Refresh data only (NO PAGE RELOAD)
-          fetchAll();
+          fetchAll(); // refresh data
         } catch {
           alert("Payment verification failed");
+        } finally {
+          setPayingRentId(null); // ✅ stop loader
         }
+      },
+
+      modal: {
+        ondismiss: () => {
+          setPayingRentId(null); // ✅ stop loader if closed
+        },
       },
     };
 
@@ -109,15 +128,18 @@ const TenantDashboard = () => {
 
   const handlePay = async (rentDueId) => {
     try {
+      setPayingRentId(rentDueId); // ✅ start loader
+
       const res = await axios.post(
         "https://nestpay-backend.onrender.com/api/payment/create-order",
         { rentDueId },
         { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      openRazorpay(res.data);
+      openRazorpay(res.data, rentDueId);
     } catch {
       alert("Unable to initiate payment");
+      setPayingRentId(null);
     }
   };
 
@@ -149,14 +171,13 @@ const TenantDashboard = () => {
           {tenant.propertyId.propertyName}
         </h2>
 
-        <Info icon={<Home />} text={`Unit ${tenant.unitId.unitName}`} />
-        <Info icon={<IndianRupee />} text={`₹${tenant.rentAmount} / month`} />
+        <Info icon={<Home />} text={tenant.unitId.unitName} />
+        <Info icon={<IndianRupee />} text={`${tenant.rentAmount} / month`} />
         <Info
           icon={<Calendar />}
           text={`Started on ${new Date(tenant.startDate).toLocaleDateString()}`}
         />
-        <Info icon={<User />} text={`Owner: ${tenant.adminId.name}`} />
-        <Info icon={<Phone />} text={tenant.adminId.mobileNo} />
+        <Info icon={<User />} text={`Landloard: ${tenant.adminId.name}`} />
       </div>
 
       {/* ================= RENT DUE ================= */}
@@ -195,19 +216,27 @@ const TenantDashboard = () => {
                 </span>
               </p>
 
-              {r.status === "Overdue" && r.fineAmount > 0 && (
-                <p className="text-xs text-rose-600 font-semibold">
-                  Late fee included: ₹{r.fineAmount}
-                </p>
-              )}
-
               <button
                 onClick={() => handlePay(r._id)}
-                className="w-full bg-indigo-600 text-white font-black py-3 rounded-xl
-                           flex items-center justify-center gap-2 active:scale-[0.98]"
+                disabled={payingRentId === r._id}
+                className={`w-full py-3 rounded-xl font-black flex items-center justify-center gap-2
+                  ${
+                    payingRentId === r._id
+                      ? "bg-indigo-400 cursor-not-allowed"
+                      : "bg-indigo-600 text-white"
+                  }`}
               >
-                <Wallet className="w-5 h-5" />
-                Pay Now
+                {payingRentId === r._id ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Opening…
+                  </>
+                ) : (
+                  <>
+                    <Wallet className="w-5 h-5" />
+                    Pay Now
+                  </>
+                )}
               </button>
             </div>
           ))

@@ -114,7 +114,7 @@ function Login() {
 
           {/* Header */}
           <div className="text-center lg:text-left">
-            <h2 className="text-3xl font-black text-slate-900">Admin Login</h2>
+            <h2 className="text-3xl font-black text-slate-900">Login</h2>
             <p className="text-slate-500 font-medium mt-2">
               Access your secure dashboard
             </p>

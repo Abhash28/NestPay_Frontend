@@ -24,6 +24,9 @@ const Payment = () => {
   const [selectedDue, setSelectedDue] = useState(null);
   const [cashLoading, setCashLoading] = useState(false);
 
+  // 👉 NEW: Track which rent is paying
+  const [payingDueId, setPayingDueId] = useState(null);
+
   /* ================= FETCH ================= */
   useEffect(() => {
     const getDues = async () => {
@@ -50,6 +53,7 @@ const Payment = () => {
   const openRazorpay = (orderData, due) => {
     if (!window.Razorpay) {
       alert("Razorpay SDK not loaded");
+      setPayingDueId(null);
       return;
     }
 
@@ -61,15 +65,12 @@ const Payment = () => {
       description: "Monthly Rent Payment",
       order_id: orderData.orderId,
 
-      // who pay
       prefill: {
         name: due.tenantId?.tenantName || "",
         contact: due.tenantId?.tenantMobileNo || "",
       },
 
-      readonly: {
-        contact: true,
-      },
+      readonly: { contact: true },
 
       handler: async (response) => {
         try {
@@ -82,24 +83,37 @@ const Payment = () => {
           window.location.reload();
         } catch {
           alert("Payment verification failed");
+        } finally {
+          setPayingDueId(null); // ✅ stop loader after payment
         }
+      },
+
+      modal: {
+        ondismiss: () => {
+          setPayingDueId(null); // ✅ stop loader if Razorpay closed
+        },
       },
     };
 
-    new window.Razorpay(options).open();
+    const rzp = new window.Razorpay(options);
+    rzp.open();
   };
 
   const handlePay = async (due) => {
     try {
+      setPayingDueId(due._id); // ✅ start loader
       const token = localStorage.getItem("token");
+
       const res = await axios.post(
         "https://nestpay-backend.onrender.com/api/payment/create-order",
         { rentDueId: due._id },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+
       openRazorpay(res.data, due);
     } catch {
       alert("Unable to initiate payment");
+      setPayingDueId(null); // ❌ stop loader on error
     }
   };
 
@@ -209,9 +223,18 @@ const Payment = () => {
                 <div className="flex gap-2 pt-2">
                   <button
                     onClick={() => handlePay(due)}
-                    className="flex-1 bg-indigo-600 text-white font-black py-2 rounded-lg text-xs"
+                    disabled={payingDueId === due._id}
+                    className={`flex-1 py-2 rounded-lg text-xs font-black flex items-center justify-center gap-2
+                      ${
+                        payingDueId === due._id
+                          ? "bg-indigo-400 cursor-not-allowed"
+                          : "bg-indigo-600 text-white"
+                      }`}
                   >
-                    Pay Online
+                    {payingDueId === due._id && (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    )}
+                    {payingDueId === due._id ? "Opening..." : "Pay Online"}
                   </button>
 
                   <button
