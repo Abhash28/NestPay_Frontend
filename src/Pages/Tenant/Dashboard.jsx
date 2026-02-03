@@ -18,7 +18,7 @@ const TenantDashboard = () => {
   const [lastPay, setLastPay] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ ONLY NEW STATE
+  //  ONLY NEW STATE
   const [payingRentId, setPayingRentId] = useState(null);
 
   const token = localStorage.getItem("token");
@@ -112,13 +112,13 @@ const TenantDashboard = () => {
         } catch {
           alert("Payment verification failed");
         } finally {
-          setPayingRentId(null); // ✅ stop loader
+          setPayingRentId(null); // stop loader
         }
       },
 
       modal: {
         ondismiss: () => {
-          setPayingRentId(null); // ✅ stop loader if closed
+          setPayingRentId(null); //  stop loader if closed
         },
       },
     };
@@ -128,7 +128,7 @@ const TenantDashboard = () => {
 
   const handlePay = async (rentDueId) => {
     try {
-      setPayingRentId(rentDueId); // ✅ start loader
+      setPayingRentId(rentDueId); //  start loader
 
       const res = await axios.post(
         "https://nestpay-backend.onrender.com/api/payment/create-order",

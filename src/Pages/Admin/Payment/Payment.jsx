@@ -24,7 +24,7 @@ const Payment = () => {
   const [selectedDue, setSelectedDue] = useState(null);
   const [cashLoading, setCashLoading] = useState(false);
 
-  // 👉 NEW: Track which rent is paying
+  //  NEW: Track which rent is paying
   const [payingDueId, setPayingDueId] = useState(null);
 
   /* ================= FETCH ================= */
@@ -84,13 +84,13 @@ const Payment = () => {
         } catch {
           alert("Payment verification failed");
         } finally {
-          setPayingDueId(null); // ✅ stop loader after payment
+          setPayingDueId(null); // stop loader after payment
         }
       },
 
       modal: {
         ondismiss: () => {
-          setPayingDueId(null); // ✅ stop loader if Razorpay closed
+          setPayingDueId(null); // stop loader if Razorpay closed
         },
       },
     };
@@ -113,7 +113,7 @@ const Payment = () => {
       openRazorpay(res.data, due);
     } catch {
       alert("Unable to initiate payment");
-      setPayingDueId(null); // ❌ stop loader on error
+      setPayingDueId(null); // stop loader on error
     }
   };
 
