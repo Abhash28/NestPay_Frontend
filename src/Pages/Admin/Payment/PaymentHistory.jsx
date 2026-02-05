@@ -206,12 +206,22 @@ const PaymentHistory = () => {
 
             <DetailRow label="Payment Method" value={transaction.method} />
             <DetailRow label="Status" value={transaction.status} />
+
             <DetailRow
               label="Paid On"
-              value={new Date(transaction.paidAt).toLocaleDateString("en-IN")}
+              value={
+                transaction.paidAt
+                  ? new Date(transaction.paidAt).toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "—"
+              }
             />
             <DetailRow label="Transaction ID" value={transaction.paymentId} />
-
+            <DetailRow label="Gateway Ref" value={transaction.rrn} />
+            <DetailRow label="UPI ID (VPA)" value={transaction.vpa} />
             <button
               onClick={() => setShowModal(false)}
               className="w-full bg-indigo-600 text-white py-2 rounded-xl font-bold"
