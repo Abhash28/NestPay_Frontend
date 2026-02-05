@@ -6,7 +6,6 @@ importScripts(
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js",
 );
 
-// eslint-disable-next-line no-undef
 firebase.initializeApp({
   apiKey: "AIzaSyAY4jo3wj5j_q4GSQgQGP9N_APkZaWQCWA",
   authDomain: "nestpay-c11bc.firebaseapp.com",
@@ -15,7 +14,6 @@ firebase.initializeApp({
   appId: "1:835149202617:web:efcef4a4960fd802090768",
 });
 
-// eslint-disable-next-line no-undef
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
@@ -26,7 +24,7 @@ messaging.onBackgroundMessage((payload) => {
 
   self.registration.showNotification(title, {
     body,
-    icon: "./favicon.png", // MUST be absolute
+    icon: "./logo.png", // MUST be absolute
     data: payload.data,
   });
 });
