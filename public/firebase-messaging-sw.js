@@ -24,7 +24,7 @@ messaging.onBackgroundMessage((payload) => {
 
   self.registration.showNotification(title, {
     body,
-    icon: "./logo.png", // MUST be absolute
+    icon: "/logo.png", // MUST be absolute
     data: payload.data,
   });
 });

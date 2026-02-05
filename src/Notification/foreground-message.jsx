@@ -12,7 +12,7 @@ export const listenForegroundMessages = () => {
 
     new Notification(payload.data.title || "NestPay", {
       body: payload.data.body || "You have a new message",
-      icon: "/favicon.png",
+      icon: "/logo.png",
     });
   });
 };
