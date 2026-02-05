@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { generateFcmToken } from "../../utils/getFcmToken";
 import {
   Phone,
   ArrowRight,
@@ -11,6 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import PasswordInputField from "./PasswordInput/PasswordInput";
+import { listenForegroundMessages } from "../Notification/foreground-message";
 
 function Login() {
   const navigate = useNavigate();
@@ -29,6 +31,11 @@ function Login() {
 
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.role);
+      //Generate FCM Token after successful login
+
+      await generateFcmToken(response.data.token);
+      //foreground listen when app open
+      listenForegroundMessages();
 
       if (response.data.success) {
         response.data.role === "admin"
