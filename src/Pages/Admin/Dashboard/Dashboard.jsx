@@ -7,7 +7,7 @@ import {
   IndianRupee,
   CheckCircle2,
 } from "lucide-react";
-
+import formatMonthYear from "../../../../utils/convertMonth";
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
     totalProperty: 0,
@@ -53,7 +53,7 @@ const AdminDashboard = () => {
 
     fetchDashboardData();
   }, []);
-
+  console.log(recentPaid);
   /* ===== SIMPLE PAGE LOADER ===== */
   if (pageLoading) {
     return (
@@ -137,22 +137,33 @@ const RecentPaymentCard = ({ payment }) => {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between">
       {/* LEFT */}
-      <div>
-        <p className="font-extrabold text-slate-900">
+      <div className="space-y-1">
+        {/* Month badge */}
+        <span className="inline-block text-[11px] font-bold tracking-wide text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full">
+          {payment.rentDueId?.month
+            ? formatMonthYear(payment.rentDueId.month)
+            : "Unknown Month"}
+        </span>
+
+        {/* Tenant */}
+        <p className="font-extrabold text-slate-900 text-sm">
           {payment.tenantId?.tenantName || "Unknown Tenant"}
         </p>
-        <p className="text-xs font-semibold text-slate-500 mt-1">
+
+        {/* Unit + Date */}
+        <p className="text-xs font-semibold text-slate-500">
           {payment.unitId?.unitName || "N/A"} • {paidDate}
         </p>
       </div>
 
       {/* RIGHT */}
-      <div className="text-right">
+      <div className="text-right space-y-1">
         <p className="font-black text-lg text-slate-900 flex items-center justify-end gap-1">
           <IndianRupee className="w-4 h-4" />
           {payment.amount}
         </p>
-        <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full mt-1">
+
+        <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
           <CheckCircle2 className="w-3 h-3" />
           Paid
         </span>
