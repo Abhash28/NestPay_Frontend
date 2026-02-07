@@ -24,8 +24,10 @@ const Payment = () => {
   const [selectedDue, setSelectedDue] = useState(null);
   const [cashLoading, setCashLoading] = useState(false);
 
-  //  NEW: Track which rent is paying
   const [payingDueId, setPayingDueId] = useState(null);
+
+  // ✅ NEW: cash remark
+  const [cashRemark, setCashRemark] = useState("");
 
   /* ================= FETCH ================= */
   useEffect(() => {
@@ -84,13 +86,13 @@ const Payment = () => {
         } catch {
           alert("Payment verification failed");
         } finally {
-          setPayingDueId(null); // stop loader after payment
+          setPayingDueId(null);
         }
       },
 
       modal: {
         ondismiss: () => {
-          setPayingDueId(null); // stop loader if Razorpay closed
+          setPayingDueId(null);
         },
       },
     };
@@ -101,7 +103,7 @@ const Payment = () => {
 
   const handlePay = async (due) => {
     try {
-      setPayingDueId(due._id); // ✅ start loader
+      setPayingDueId(due._id);
       const token = localStorage.getItem("token");
 
       const res = await axios.post(
@@ -113,7 +115,7 @@ const Payment = () => {
       openRazorpay(res.data, due);
     } catch {
       alert("Unable to initiate payment");
-      setPayingDueId(null); // stop loader on error
+      setPayingDueId(null);
     }
   };
 
@@ -122,17 +124,23 @@ const Payment = () => {
     try {
       setCashLoading(true);
       const token = localStorage.getItem("token");
+
       await axios.post(
         "https://nestpay-backend.onrender.com/api/payment/cash",
-        { rentDueId: selectedDue._id },
+        {
+          rentDueId: selectedDue._id,
+          cashRemark, // ✅ sent to backend
+        },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+
       window.location.reload();
     } catch (err) {
       alert(err.response?.data?.message || "Cash payment failed");
     } finally {
       setCashLoading(false);
       setShowCashModal(false);
+      setCashRemark(""); // ✅ reset
     }
   };
 
@@ -185,7 +193,6 @@ const Payment = () => {
               key={due._id}
               className="bg-white border border-slate-200 rounded-xl p-4 space-y-2"
             >
-              {/* Amount + Status */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 font-black text-slate-900">
                   <IndianRupee className="w-4 h-4" />
@@ -194,7 +201,6 @@ const Payment = () => {
                 <StatusBadge status={due.status} />
               </div>
 
-              {/* Tenant + Month */}
               <div className="flex items-center justify-between text-xs text-slate-600">
                 <span className="truncate flex items-center gap-1">
                   <User className="w-3.5 h-3.5 text-slate-400" />
@@ -206,7 +212,6 @@ const Payment = () => {
                 </span>
               </div>
 
-              {/* Property + Due date */}
               <div className="flex items-center justify-between text-xs text-slate-500">
                 <span className="truncate flex items-center gap-1">
                   <Home className="w-3.5 h-3.5 text-slate-400" />
@@ -218,18 +223,16 @@ const Payment = () => {
                 </span>
               </div>
 
-              {/* Actions */}
               {due.status !== "Paid" && (
                 <div className="flex gap-2 pt-2">
                   <button
                     onClick={() => handlePay(due)}
                     disabled={payingDueId === due._id}
-                    className={`flex-1 py-2 rounded-lg text-xs font-black flex items-center justify-center gap-2
-                      ${
-                        payingDueId === due._id
-                          ? "bg-indigo-400 cursor-not-allowed"
-                          : "bg-indigo-600 text-white"
-                      }`}
+                    className={`flex-1 py-2 rounded-lg text-xs font-black flex items-center justify-center gap-2 ${
+                      payingDueId === due._id
+                        ? "bg-indigo-400 cursor-not-allowed"
+                        : "bg-indigo-600 text-white"
+                    }`}
                   >
                     {payingDueId === due._id && (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -243,7 +246,6 @@ const Payment = () => {
                       setShowCashModal(true);
                     }}
                     className="px-3 rounded-lg border border-slate-300 text-slate-600"
-                    title="Mark as cash payment"
                   >
                     <Wallet className="w-4 h-4" />
                   </button>
@@ -268,7 +270,7 @@ const Payment = () => {
                 Are you sure you want to mark this rent as <b>paid by cash</b>?
               </p>
 
-              <div className="bg-slate-50 rounded-xl p-3 text-xs space-y-1">
+              <div className="bg-slate-50 rounded-xl p-3 text-xs space-y-2">
                 <p>
                   <b>Tenant:</b> {selectedDue.tenantId?.tenantName}
                 </p>
@@ -278,6 +280,14 @@ const Payment = () => {
                 <p>
                   <b>Month:</b> {formatMonthYear(selectedDue.month)}
                 </p>
+
+                <input
+                  type="text"
+                  placeholder="Enter remark (optional)"
+                  value={cashRemark}
+                  onChange={(e) => setCashRemark(e.target.value)}
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                />
               </div>
             </div>
 

@@ -165,8 +165,12 @@ const TenantHistory = () => {
               label="Month"
               value={formatMonthYear(transaction.rentDueId?.month)}
             />
-            <DetailRow label="Transaction ID" value={transaction.paymentId} />
-
+            {transaction.paymentId && (
+              <DetailRow label="Cash Remark" value={transaction.paymentId} />
+            )}
+            {transaction.cashRemark && (
+              <DetailRow label="Cash Remark" value={transaction.cashRemark} />
+            )}
             <button
               onClick={() => setShowModal(false)}
               className="w-full bg-indigo-600 text-white py-2 rounded-xl font-bold"

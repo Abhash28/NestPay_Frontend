@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Calendar, User, Home, IndianRupee, Clock } from "lucide-react";
+import {
+  Calendar,
+  User,
+  Home,
+  IndianRupee,
+  Clock,
+  Download,
+} from "lucide-react";
 import formatMonthYear from "../../../../utils/convertMonth";
 
 const PaymentHistory = () => {
@@ -71,6 +78,41 @@ const PaymentHistory = () => {
     }
   };
 
+  /* ===== DOWNLOAD PDF ===== */
+  const downloadPaymentPdf = async () => {
+    const params = {};
+    if (month && year) {
+      params.month = month;
+      params.year = year;
+    }
+    if (status) params.status = status;
+
+    const res = await axios.get(
+      "https://nestpay-backend.onrender.com/api/payment/pdf",
+      {
+        params,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+
+    const { file, fileName } = res.data;
+
+    const byteCharacters = atob(file);
+    const byteNumbers = Array.from(byteCharacters).map((c) => c.charCodeAt(0));
+    const blob = new Blob([new Uint8Array(byteNumbers)], {
+      type: "application/pdf",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     fetchPaymentHistory();
   }, [month, year, status]);
@@ -88,11 +130,23 @@ const PaymentHistory = () => {
 
   return (
     <div className="p-4 max-w-3xl mx-auto space-y-5 pb-24">
-      <div>
-        <h1 className="text-xl font-black text-slate-900">Payment History</h1>
-        <p className="text-xs text-slate-500">Track all rent payments</p>
+      {/* ===== HEADER ===== */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-black text-slate-900">Payment History</h1>
+          <p className="text-xs text-slate-500">Track all rent payments</p>
+        </div>
+
+        <button
+          onClick={downloadPaymentPdf}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-bold"
+        >
+          <Download className="w-4 h-4" />
+          Download PDF
+        </button>
       </div>
 
+      {/* ===== FILTERS ===== */}
       <div className="bg-white border border-slate-200 rounded-xl p-3 flex gap-2 overflow-x-auto">
         <Select value={month} onChange={setMonth} placeholder="Month">
           <option value="01">Jan</option>
@@ -128,6 +182,7 @@ const PaymentHistory = () => {
         </div>
       )}
 
+      {/* ===== LIST ===== */}
       {rentHistory.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-xl p-6 text-center text-slate-500">
           No payment records found
@@ -146,7 +201,7 @@ const PaymentHistory = () => {
                     ? () => fetchTransactionDetail(rent._id)
                     : undefined
                 }
-                className="relative bg-white border border-slate-200 rounded-xl p-3 space-y-2 transition hover:border-indigo-400 hover:shadow-sm"
+                className="relative bg-white border border-slate-200 rounded-xl p-3 space-y-2 hover:border-indigo-400 hover:shadow-sm"
               >
                 {isLoading && (
                   <div className="absolute inset-0 bg-white/70 rounded-xl z-10 flex items-center justify-center">
@@ -197,6 +252,7 @@ const PaymentHistory = () => {
         </div>
       )}
 
+      {/* ===== MODAL ===== */}
       {showModal && transaction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white w-full max-w-md rounded-2xl p-5 space-y-4">
@@ -204,24 +260,23 @@ const PaymentHistory = () => {
               Transaction Details
             </h2>
 
-            <DetailRow label="Payment Method" value={transaction.method} />
-            <DetailRow label="Status" value={transaction.status} />
-
-            <DetailRow
+            <DetailRowIf label="Payment Method" value={transaction.method} />
+            <DetailRowIf label="Status" value={transaction.status} />
+            <DetailRowIf
               label="Paid On"
               value={
-                transaction.paidAt
-                  ? new Date(transaction.paidAt).toLocaleDateString("en-IN", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })
-                  : "—"
+                transaction.paidAt &&
+                new Date(transaction.paidAt).toLocaleDateString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
               }
             />
-            <DetailRow label="Transaction ID" value={transaction.paymentId} />
-            <DetailRow label="Gateway Ref" value={transaction.rrn} />
-            <DetailRow label="UPI ID (VPA)" value={transaction.vpa} />
+            <DetailRowIf label="Transaction ID" value={transaction.paymentId} />
+            <DetailRowIf label="Gateway Ref" value={transaction.rrn} />
+            <DetailRowIf label="UPI ID (VPA)" value={transaction.vpa} />
+
             <button
               onClick={() => setShowModal(false)}
               className="w-full bg-indigo-600 text-white py-2 rounded-xl font-bold"
@@ -241,8 +296,7 @@ const Select = ({ value, onChange, placeholder, children }) => (
   <select
     value={value}
     onChange={(e) => onChange(e.target.value)}
-    className="px-3 py-2 rounded-lg bg-slate-50 border border-slate-200
-               text-xs font-bold text-slate-700 outline-none"
+    className="px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs font-bold"
   >
     <option value="">{placeholder}</option>
     {children}
@@ -257,15 +311,12 @@ const Row = ({ icon, text }) => (
 );
 
 const StatusBadge = ({ status }) => {
-  let styles = "bg-slate-100 text-slate-600";
-
-  if (status === "Paid") {
-    styles = "bg-emerald-50 text-emerald-600";
-  } else if (status === "Pending") {
-    styles = "bg-amber-50 text-amber-600";
-  } else if (status === "Overdue") {
-    styles = "bg-rose-50 text-rose-600";
-  }
+  const styles =
+    status === "Paid"
+      ? "bg-emerald-50 text-emerald-600"
+      : status === "Pending"
+        ? "bg-amber-50 text-amber-600"
+        : "bg-rose-50 text-rose-600";
 
   return (
     <span className={`px-2 py-0.5 rounded-full text-xs font-black ${styles}`}>
@@ -274,13 +325,16 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-const DetailRow = ({ label, value }) => (
-  <div className="flex items-center justify-between text-sm">
-    <span className="text-slate-500">{label}</span>
-    <span className="font-semibold text-slate-800 truncate max-w-[60%]">
-      {value}
-    </span>
-  </div>
-);
+const DetailRowIf = ({ label, value }) => {
+  if (!value) return null;
+  return (
+    <div className="flex items-center justify-between text-sm">
+      <span className="text-slate-500">{label}</span>
+      <span className="font-semibold text-slate-800 truncate max-w-[60%]">
+        {value}
+      </span>
+    </div>
+  );
+};
 
 export default PaymentHistory;
