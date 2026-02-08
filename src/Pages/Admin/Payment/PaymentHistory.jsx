@@ -273,6 +273,9 @@ const PaymentHistory = () => {
                 })
               }
             />
+            {transaction.cashRemark && (
+              <DetailRowIf label="Remark" value={transaction.cashRemark} />
+            )}
             <DetailRowIf label="Transaction ID" value={transaction.paymentId} />
             <DetailRowIf label="Gateway Ref" value={transaction.rrn} />
             <DetailRowIf label="UPI ID (VPA)" value={transaction.vpa} />

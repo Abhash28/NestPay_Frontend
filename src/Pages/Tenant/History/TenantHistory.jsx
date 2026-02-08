@@ -166,7 +166,7 @@ const TenantHistory = () => {
               value={formatMonthYear(transaction.rentDueId?.month)}
             />
             {transaction.paymentId && (
-              <DetailRow label="Cash Remark" value={transaction.paymentId} />
+              <DetailRow label="Payment Id" value={transaction.paymentId} />
             )}
             {transaction.cashRemark && (
               <DetailRow label="Cash Remark" value={transaction.cashRemark} />
