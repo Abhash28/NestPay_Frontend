@@ -53,7 +53,7 @@ const AdminDashboard = () => {
 
     fetchDashboardData();
   }, []);
-  console.log(recentPaid);
+  console.log(stats);
   /* ===== SIMPLE PAGE LOADER ===== */
   if (pageLoading) {
     return (
