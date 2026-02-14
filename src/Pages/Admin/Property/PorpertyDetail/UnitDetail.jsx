@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { IndianRupee, User, Phone, Plus, Pencil } from "lucide-react";
+import { IndianRupee, User, Phone, Plus, Pencil, Search } from "lucide-react";
 
 const UnitDetail = () => {
   const { propertyId } = useParams();
@@ -16,6 +16,9 @@ const UnitDetail = () => {
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [unitName, setUnitName] = useState("");
   const [monthlyRent, setMonthlyRent] = useState("");
+
+  // ✅ NEW SEARCH STATE
+  const [search, setSearch] = useState("");
 
   const fetchUnits = async () => {
     try {
@@ -36,6 +39,23 @@ const UnitDetail = () => {
   useEffect(() => {
     fetchUnits();
   }, [propertyId]);
+
+  /* ================= SEARCH FILTER ================= */
+  const filteredUnits = units.filter((unit) => {
+    const searchText = search.trim().toLowerCase();
+
+    const unitNameStr = unit.unitName?.toLowerCase() || "";
+    const tenantName = unit.tenantId?.tenantName?.toLowerCase() || "";
+    const mobile = String(unit.tenantId?.tenantMobileNo || "");
+    const rent = String(unit.monthlyRent || "");
+
+    return (
+      unitNameStr.includes(searchText) ||
+      tenantName.includes(searchText) ||
+      mobile.includes(searchText) ||
+      rent.includes(searchText)
+    );
+  });
 
   const vacantCount = units.filter((u) => u.status === "vacant").length;
   const occupiedCount = units.filter((u) => u.status === "occupied").length;
@@ -129,23 +149,33 @@ const UnitDetail = () => {
         </div>
       </div>
 
+      {/* ===== SEARCH ===== */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <input
+          type="text"
+          placeholder="Search unit, tenant, mobile, rent..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200
+                     rounded-xl text-sm font-semibold outline-none
+                     focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+
       {/* UNIT LIST */}
-      {units.length === 0 ? (
+      {filteredUnits.length === 0 ? (
         <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-8 text-center space-y-2">
-          <p className="font-bold text-slate-600">No units yet</p>
-          <p className="text-xs text-slate-500">
-            Add units to start allocating tenants
-          </p>
+          <p className="font-bold text-slate-600">No units found</p>
+          <p className="text-xs text-slate-500">Try adjusting your search</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {units.map((unit) => (
+          {filteredUnits.map((unit) => (
             <div
               key={unit._id}
-              className="bg-white border border-slate-200 rounded-2xl p-4
-                         space-y-3 relative"
+              className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 relative"
             >
-              {/* TOP */}
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-base font-extrabold text-slate-900">
@@ -156,22 +186,19 @@ const UnitDetail = () => {
 
                 <button
                   onClick={() => handleEditClick(unit)}
-                  className="bg-indigo-50 text-indigo-600 px-2.5 py-1.5
-                             rounded-lg text-xs font-bold flex items-center gap-1"
+                  className="bg-indigo-50 text-indigo-600 px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1"
                 >
                   <Pencil className="w-3.5 h-3.5" />
                   Edit
                 </button>
               </div>
 
-              {/* RENT HIGHLIGHT */}
               <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2">
                 <IndianRupee className="w-4 h-4 text-slate-500" />
                 <p className="font-black text-slate-900">{unit.monthlyRent}</p>
                 <span className="text-xs text-slate-500">/ month</span>
               </div>
 
-              {/* INFO */}
               <InfoRow
                 icon={<User className="w-4 h-4" />}
                 text={unit.tenantId?.tenantName || "No tenant"}
@@ -185,7 +212,7 @@ const UnitDetail = () => {
         </div>
       )}
 
-      {/* ADD MODAL */}
+      {/* ADD & EDIT MODALS remain same */}
       {showAddModal && (
         <Modal title="Add Unit" onClose={() => setShowAddModal(false)}>
           <Input
@@ -208,7 +235,6 @@ const UnitDetail = () => {
         </Modal>
       )}
 
-      {/* EDIT MODAL */}
       {showEditModal && (
         <Modal title="Edit Unit" onClose={() => setShowEditModal(false)}>
           <Input
@@ -243,12 +269,11 @@ const InfoRow = ({ icon, text }) => (
 
 const StatusBadge = ({ status }) => (
   <span
-    className={`inline-block mt-1 text-[11px] font-bold px-2 py-0.5 rounded-full
-      ${
-        status === "occupied"
-          ? "bg-emerald-100 text-emerald-700"
-          : "bg-amber-100 text-amber-700"
-      }`}
+    className={`inline-block mt-1 text-[11px] font-bold px-2 py-0.5 rounded-full ${
+      status === "occupied"
+        ? "bg-emerald-100 text-emerald-700"
+        : "bg-amber-100 text-amber-700"
+    }`}
   >
     {status === "occupied" ? "Occupied" : "Vacant"}
   </span>
@@ -256,18 +281,13 @@ const StatusBadge = ({ status }) => (
 
 const Modal = ({ title, children, onClose }) => (
   <div className="fixed inset-0 z-[100] bg-black/40 flex items-end sm:items-center justify-center">
-    <div
-      className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl
-                 max-h-[90vh] flex flex-col"
-      onClick={(e) => e.stopPropagation()}
-    >
+    <div className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl max-h-[90vh] flex flex-col">
       <div className="flex items-center justify-between px-4 py-3 border-b">
         <h3 className="text-lg font-black">{title}</h3>
         <button onClick={onClose} className="text-slate-400 text-lg">
           ✕
         </button>
       </div>
-
       <div className="flex-1 overflow-y-auto p-4 space-y-3">{children}</div>
     </div>
   </div>
@@ -276,9 +296,7 @@ const Modal = ({ title, children, onClose }) => (
 const Input = (props) => (
   <input
     {...props}
-    className="w-full px-3 py-3 bg-slate-50 border border-slate-200
-               rounded-xl font-bold text-sm outline-none
-               focus:ring-2 focus:ring-indigo-500"
+    className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500"
   />
 );
 
@@ -286,15 +304,13 @@ const ModalAction = ({ onConfirm, onCancel, label }) => (
   <div className="sticky bottom-0 bg-white border-t px-4 py-3 flex gap-2">
     <button
       onClick={onCancel}
-      className="flex-1 border border-slate-300
-                 rounded-xl py-3 text-sm font-bold"
+      className="flex-1 border border-slate-300 rounded-xl py-3 text-sm font-bold"
     >
       Cancel
     </button>
     <button
       onClick={onConfirm}
-      className="flex-1 bg-indigo-600 text-white
-                 rounded-xl py-3 text-sm font-black"
+      className="flex-1 bg-indigo-600 text-white rounded-xl py-3 text-sm font-black"
     >
       {label}
     </button>

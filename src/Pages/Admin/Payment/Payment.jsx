@@ -10,6 +10,7 @@ import {
   Wallet,
   Loader2,
   AlertTriangle,
+  Search,
 } from "lucide-react";
 import formatMonthYear from "../../../../utils/convertMonth";
 
@@ -23,11 +24,10 @@ const Payment = () => {
   const [showCashModal, setShowCashModal] = useState(false);
   const [selectedDue, setSelectedDue] = useState(null);
   const [cashLoading, setCashLoading] = useState(false);
-
   const [payingDueId, setPayingDueId] = useState(null);
 
-  // ✅ NEW: cash remark
   const [cashRemark, setCashRemark] = useState("");
+  const [search, setSearch] = useState("");
 
   /* ================= FETCH ================= */
   useEffect(() => {
@@ -50,6 +50,25 @@ const Payment = () => {
     };
     getDues();
   }, []);
+
+  /* ================= SEARCH FILTER ================= */
+  const filteredDues = rentDues.filter((due) => {
+    const searchText = search.trim().toLowerCase();
+
+    const tenant = due.tenantId?.tenantName?.toLowerCase() || "";
+    const property = due.propertyId?.propertyName?.toLowerCase() || "";
+    const unit = due.unitId?.unitName?.toLowerCase() || "";
+    const month = formatMonthYear(due.month)?.toLowerCase() || "";
+    const amount = String(due.rentAmount || "");
+
+    return (
+      tenant.includes(searchText) ||
+      property.includes(searchText) ||
+      unit.includes(searchText) ||
+      month.includes(searchText) ||
+      amount.includes(searchText)
+    );
+  });
 
   /* ================= RAZORPAY ================= */
   const openRazorpay = (orderData, due) => {
@@ -91,9 +110,7 @@ const Payment = () => {
       },
 
       modal: {
-        ondismiss: () => {
-          setPayingDueId(null);
-        },
+        ondismiss: () => setPayingDueId(null),
       },
     };
 
@@ -129,7 +146,7 @@ const Payment = () => {
         "https://nestpay-backend.onrender.com/api/payment/cash",
         {
           rentDueId: selectedDue._id,
-          cashRemark, // ✅ sent to backend
+          cashRemark,
         },
         { headers: { Authorization: `Bearer ${token}` } },
       );
@@ -140,11 +157,11 @@ const Payment = () => {
     } finally {
       setCashLoading(false);
       setShowCashModal(false);
-      setCashRemark(""); // ✅ reset
+      setCashRemark("");
     }
   };
 
-  /* ================= PAGE LOADER ================= */
+  /* ================= LOADER ================= */
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -175,6 +192,20 @@ const Payment = () => {
         </button>
       </div>
 
+      {/* ===== SEARCH ===== */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <input
+          type="text"
+          placeholder="Search tenant, property, month, amount..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200
+                     rounded-xl text-sm font-semibold outline-none
+                     focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+
       {error && (
         <div className="bg-rose-50 text-rose-600 text-sm font-bold p-3 rounded-xl">
           {error}
@@ -182,13 +213,13 @@ const Payment = () => {
       )}
 
       {/* ===== LIST ===== */}
-      {rentDues.length === 0 ? (
+      {filteredDues.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-xl p-6 text-center text-slate-500">
           No rent dues found
         </div>
       ) : (
         <div className="space-y-4">
-          {rentDues.map((due) => (
+          {filteredDues.map((due) => (
             <div
               key={due._id}
               className="bg-white border border-slate-200 rounded-xl p-4 space-y-2"
@@ -256,7 +287,7 @@ const Payment = () => {
         </div>
       )}
 
-      {/* ===== CASH CONFIRM MODAL ===== */}
+      {/* ===== CASH MODAL ===== */}
       {showCashModal && selectedDue && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center pb-24 sm:pb-0">
           <div className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl">
