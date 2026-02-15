@@ -31,19 +31,27 @@ const AdminDashboard = () => {
           await Promise.all([
             axios.get(
               "https://nestpay-backend.onrender.com/api/property/dashboard-stats",
-              { headers: { Authorization: `Bearer ${token}` } },
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              },
             ),
             axios.get(
               "https://nestpay-backend.onrender.com/api/payment/recent-paid",
-              { headers: { Authorization: `Bearer ${token}` } },
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              },
             ),
             axios.get(
               "https://nestpay-backend.onrender.com/api/rentdue/collection",
-              { headers: { Authorization: `Bearer ${token}` } },
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              },
             ),
             axios.get(
               "https://nestpay-backend.onrender.com/api/rentdue/alldues",
-              { headers: { Authorization: `Bearer ${token}` } },
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              },
             ),
           ]);
 

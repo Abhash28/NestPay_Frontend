@@ -26,9 +26,11 @@ const TenantLayout = () => {
       >
         <div className="max-w-md mx-auto px-5 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-md">
-              <Zap className="text-white w-5 h-5" />
-            </div>
+            <img
+              src="/logo.png"
+              alt="NestPay"
+              className="w-8 h-8 object-contain"
+            />
             <span className="text-lg font-black text-slate-900">NestPay</span>
           </div>
 

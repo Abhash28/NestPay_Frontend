@@ -35,9 +35,12 @@ const AdminLayout = () => {
       <aside className="hidden lg:flex w-72 flex-col bg-white border-r border-slate-200 px-4 py-6 fixed top-0 left-0 h-screen">
         {/* Brand */}
         <div className="flex items-center gap-3 px-4 mb-10">
-          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
-            <Building2 className="text-white w-6 h-6" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="NestPay"
+            className="w-10 h-10 object-contain"
+          />
+
           <span className="text-xl font-black text-slate-900">NestPay</span>
         </div>
 
@@ -82,9 +85,12 @@ const AdminLayout = () => {
       {/* ================= MOBILE TOP NAVBAR ================= */}
       <header className="fixed top-0 left-0 right-0 z-50 lg:hidden bg-white border-b border-slate-200 h-14 flex items-center px-4">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <Building2 className="text-white w-5 h-5" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="NestPay"
+            className="w-9 h-9 object-contain"
+          />
+
           <span className="font-black text-slate-900">NestPay</span>
         </div>
       </header>
