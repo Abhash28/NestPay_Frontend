@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 // Auth pages
@@ -34,6 +35,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <SpeedInsights />
       <Routes>
         {/* ROOT REDIRECT */}
         <Route
